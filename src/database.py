@@ -1,5 +1,8 @@
 """
-Módulo para la conexión y operaciones con la base de datos.
+Módulo para la conexión y operaciones con la base de datos de tráfico marítimo.
+
+Este módulo proporciona funciones para conectarse a la base de datos MySQL,
+ejecutar consultas y obtener información sobre buques, puertos y tráfico marítimo.
 """
 import os
 import pandas as pd
@@ -7,9 +10,7 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
-# Cargar variables de entorno
-# Cargar variables de entorno
+# Cargar variables de entorno desde el archivo .env
 load_dotenv()
 
 # ...existing code...
