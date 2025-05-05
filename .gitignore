@@ -20,7 +20,7 @@ build/
 *.log
 
 # Local data
-data/results/
+data/
 
 # IDE specific files
 .idea/
