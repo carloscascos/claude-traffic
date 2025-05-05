@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_1e9eb130bb69ebd9c804af1b8635025b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+    <div style="position: fixed; 
+                bottom: 50px; left: 50px; width: 230px; height: 140px; 
+                border: 2px solid grey; z-index: 9999; font-size: 14px;
+                background-color: white; padding: 10px; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 5px;">
+            <strong>Cruise Vessel Traffic</strong>
+        </div>
+        <div style="margin-bottom: 5px;">
+            Line width is proportional to gross tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 2px; background-color: #1E88E5;"></span>
+            Lower Tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 6px; background-color: #1E88E5;"></span>
+            Medium Tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 12px; background-color: #1E88E5;"></span>
+            Higher Tonnage
+        </div>
+    </div>
+    
+    
+    <div style="position: fixed; 
+                top: 10px; left: 50%; transform: translateX(-50%); 
+                z-index: 9999; font-size: 18px; font-weight: bold;
+                background-color: white; padding: 10px; border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        Cruise Vessel Maritime Highway Map - October 2024
+    </div>
+    
+    
+            <div class="folium-map" id="map_1e9eb130bb69ebd9c804af1b8635025b" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_1e9eb130bb69ebd9c804af1b8635025b = L.map(
+                "map_1e9eb130bb69ebd9c804af1b8635025b",
+                {
+                    center: [41.96043708333333, 14.788363958333333],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c272f159cd0fbcc241e2d09a36bf8888 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c272f159cd0fbcc241e2d09a36bf8888.addTo(map_1e9eb130bb69ebd9c804af1b8635025b);
+        
+    
+            var measure_control_58a8587c20ae9f3a9fa51509725d20e8 = new L.Control.Measure(
+                {
+  "position": "topright",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_1e9eb130bb69ebd9c804af1b8635025b.addControl(measure_control_58a8587c20ae9f3a9fa51509725d20e8);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_ed720fa95380d31ca8be4568f49907e4 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_00375ca2c7a60d323a415ae5582384d0 = L.polyline(
+                [[64.15559, -24.76765], [64.15138, -24.99849]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.2144200091157704}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_10efb93cfe134065c91b173270324ccf = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5aa9f21cffccb0283a3457095f6d4a26 = $(`<div id="html_5aa9f21cffccb0283a3457095f6d4a26" style="width: 100.0%; height: 100.0%;">         <h4>Route 0</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 4,614 GT<br>         <b>Average Gross Tonnage:</b> 4,614 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> OCEAN ADVENTURER         </div>`)[0];
+                popup_10efb93cfe134065c91b173270324ccf.setContent(html_5aa9f21cffccb0283a3457095f6d4a26);
+            
+        
+
+        poly_line_00375ca2c7a60d323a415ae5582384d0.bindPopup(popup_10efb93cfe134065c91b173270324ccf)
+        ;
+
+        
+    
+    
+            poly_line_00375ca2c7a60d323a415ae5582384d0.bindTooltip(
+                `<div>
+                     Route 0: 1 trips, 4,614 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_e4b01a4850c91abf0a778670ae46aac6 = L.polyline(
+                [[41.11562, 12.9896], [40.91737, 13.41932]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3.1523686759343663}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_cdfb32d421843d49130df1ce8fe4f60f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_389344d1f4b60b9587aa1e5c0fc3535f = $(`<div id="html_389344d1f4b60b9587aa1e5c0fc3535f" style="width: 100.0%; height: 100.0%;">         <h4>Route 1</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 14,745 GT<br>         <b>Average Gross Tonnage:</b> 14,745 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> WIND SURF         </div>`)[0];
+                popup_cdfb32d421843d49130df1ce8fe4f60f.setContent(html_389344d1f4b60b9587aa1e5c0fc3535f);
+            
+        
+
+        poly_line_e4b01a4850c91abf0a778670ae46aac6.bindPopup(popup_cdfb32d421843d49130df1ce8fe4f60f)
+        ;
+
+        
+    
+    
+            poly_line_e4b01a4850c91abf0a778670ae46aac6.bindTooltip(
+                `<div>
+                     Route 1: 1 trips, 14,745 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_f03a81e0db684be21019b9bf75b2d9e5 = L.polyline(
+                [[36.49409, 27.73466], [36.54382, 28.0788]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_ca1b11488f10ab45a24794114a70a8a1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9c1802d0234a51c077ea055b6e3d192d = $(`<div id="html_9c1802d0234a51c077ea055b6e3d192d" style="width: 100.0%; height: 100.0%;">         <h4>Route 2</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 2,298 GT<br>         <b>Average Gross Tonnage:</b> 2,298 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> STAR CLIPPER         </div>`)[0];
+                popup_ca1b11488f10ab45a24794114a70a8a1.setContent(html_9c1802d0234a51c077ea055b6e3d192d);
+            
+        
+
+        poly_line_f03a81e0db684be21019b9bf75b2d9e5.bindPopup(popup_ca1b11488f10ab45a24794114a70a8a1)
+        ;
+
+        
+    
+    
+            poly_line_f03a81e0db684be21019b9bf75b2d9e5.bindTooltip(
+                `<div>
+                     Route 2: 1 trips, 2,298 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1935dcb6dd901471b27e65d8897f06bc = L.polyline(
+                [[37.51935, 25.28057], [37.28878, 24.58838]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 6.93249344804011}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_d5fe86acead4388efdae292e2bfeba3e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e285d5abe0d51b754c83396dcc0dafd1 = $(`<div id="html_e285d5abe0d51b754c83396dcc0dafd1" style="width: 100.0%; height: 100.0%;">         <h4>Route 3</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 55,575 GT<br>         <b>Average Gross Tonnage:</b> 55,575 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> AEGEAN MYTH         </div>`)[0];
+                popup_d5fe86acead4388efdae292e2bfeba3e.setContent(html_e285d5abe0d51b754c83396dcc0dafd1);
+            
+        
+
+        poly_line_1935dcb6dd901471b27e65d8897f06bc.bindPopup(popup_d5fe86acead4388efdae292e2bfeba3e)
+        ;
+
+        
+    
+    
+            poly_line_1935dcb6dd901471b27e65d8897f06bc.bindTooltip(
+                `<div>
+                     Route 3: 1 trips, 55,575 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_d8b124ed2074ec6ad22e68485fa2fe26 = L.polyline(
+                [[42.35519, 17.48417], [42.26425, 17.90982]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 8.495556061987237}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_f394c43af7c08a6d4fe1acc9b5d70a30 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a09f6030c20d186a3f2dacf92918f849 = $(`<div id="html_a09f6030c20d186a3f2dacf92918f849" style="width: 100.0%; height: 100.0%;">         <h4>Route 4</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 72,458 GT<br>         <b>Average Gross Tonnage:</b> 72,458 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> MARELLA EXPLORER 2         </div>`)[0];
+                popup_f394c43af7c08a6d4fe1acc9b5d70a30.setContent(html_a09f6030c20d186a3f2dacf92918f849);
+            
+        
+
+        poly_line_d8b124ed2074ec6ad22e68485fa2fe26.bindPopup(popup_f394c43af7c08a6d4fe1acc9b5d70a30)
+        ;
+
+        
+    
+    
+            poly_line_d8b124ed2074ec6ad22e68485fa2fe26.bindTooltip(
+                `<div>
+                     Route 4: 1 trips, 72,458 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_765e944338dd83b6de90b1eecc8b912d = L.polyline(
+                [[41.59435, 18.57051], [41.91761, 18.4855]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 5.709299510027347}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_74f3a8d322ba950cc18d270f44c879ee = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_4bcadd01ee7e96a493dac4dfe67d70a3 = $(`<div id="html_4bcadd01ee7e96a493dac4dfe67d70a3" style="width: 100.0%; height: 100.0%;">         <h4>Route 5</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 42,363 GT<br>         <b>Average Gross Tonnage:</b> 42,363 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> SEVEN SEAS VOYAGER         </div>`)[0];
+                popup_74f3a8d322ba950cc18d270f44c879ee.setContent(html_4bcadd01ee7e96a493dac4dfe67d70a3);
+            
+        
+
+        poly_line_765e944338dd83b6de90b1eecc8b912d.bindPopup(popup_74f3a8d322ba950cc18d270f44c879ee)
+        ;
+
+        
+    
+    
+            poly_line_765e944338dd83b6de90b1eecc8b912d.bindTooltip(
+                `<div>
+                     Route 5: 1 trips, 42,363 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_22eda12af90f475523bdb91c0032a121 = L.polyline(
+                [[36.2969, 22.53825], [36.39433, 21.89012]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 7.859795180036463}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_29b201877f329fa366b3eccecdc33656 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_56c3a3b091959a7f6a638b4248b55a63 = $(`<div id="html_56c3a3b091959a7f6a638b4248b55a63" style="width: 100.0%; height: 100.0%;">         <h4>Route 6</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 65,591 GT<br>         <b>Average Gross Tonnage:</b> 65,591 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> MSC OPERA         </div>`)[0];
+                popup_29b201877f329fa366b3eccecdc33656.setContent(html_56c3a3b091959a7f6a638b4248b55a63);
+            
+        
+
+        poly_line_22eda12af90f475523bdb91c0032a121.bindPopup(popup_29b201877f329fa366b3eccecdc33656)
+        ;
+
+        
+    
+    
+            poly_line_22eda12af90f475523bdb91c0032a121.bindTooltip(
+                `<div>
+                     Route 6: 1 trips, 65,591 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_fb99cb506dfb6626781f2162c106244a = L.polyline(
+                [[41.66366, 10.25584], [41.46459, 9.656187]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 12.380946615770283}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_82f05466c0f7b4a9da3a1e8fc48c5759 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_fdaca0df766bea6ee7c50bdfb5c411dd = $(`<div id="html_fdaca0df766bea6ee7c50bdfb5c411dd" style="width: 100.0%; height: 100.0%;">         <h4>Route 7</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 114,425 GT<br>         <b>Average Gross Tonnage:</b> 114,425 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> COSTA PACIFICA         </div>`)[0];
+                popup_82f05466c0f7b4a9da3a1e8fc48c5759.setContent(html_fdaca0df766bea6ee7c50bdfb5c411dd);
+            
+        
+
+        poly_line_fb99cb506dfb6626781f2162c106244a.bindPopup(popup_82f05466c0f7b4a9da3a1e8fc48c5759)
+        ;
+
+        
+    
+    
+            poly_line_fb99cb506dfb6626781f2162c106244a.bindTooltip(
+                `<div>
+                     Route 7: 1 trips, 114,425 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_6bb9d906bf48c0747ca16272d7643cf7 = L.polyline(
+                [[20.49215, -86.98534], [20.82262, -86.78574]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 13.64256210118505}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_e72c66f01b2c0174bb483a4e41bcea7f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1304c9bd585d9d8bbbe837beaf2545a2 = $(`<div id="html_1304c9bd585d9d8bbbe837beaf2545a2" style="width: 100.0%; height: 100.0%;">         <h4>Route 8</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 128,052 GT<br>         <b>Average Gross Tonnage:</b> 128,052 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> CARNIVAL BREEZE         </div>`)[0];
+                popup_e72c66f01b2c0174bb483a4e41bcea7f.setContent(html_1304c9bd585d9d8bbbe837beaf2545a2);
+            
+        
+
+        poly_line_6bb9d906bf48c0747ca16272d7643cf7.bindPopup(popup_e72c66f01b2c0174bb483a4e41bcea7f)
+        ;
+
+        
+    
+    
+            poly_line_6bb9d906bf48c0747ca16272d7643cf7.bindTooltip(
+                `<div>
+                     Route 8: 1 trips, 128,052 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_a6db4138d3ce207ca8ad70b04e1776f7 = L.polyline(
+                [[58.72911, -3.414962], [58.60536, -2.55441]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.0}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_09678c52fe7ccc5658a6710a57dadb64 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6a6cc51a94447f948048430112582b3b = $(`<div id="html_6a6cc51a94447f948048430112582b3b" style="width: 100.0%; height: 100.0%;">         <h4>Route 9</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 142,714 GT<br>         <b>Average Gross Tonnage:</b> 142,714 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> REGAL PRINCESS         </div>`)[0];
+                popup_09678c52fe7ccc5658a6710a57dadb64.setContent(html_6a6cc51a94447f948048430112582b3b);
+            
+        
+
+        poly_line_a6db4138d3ce207ca8ad70b04e1776f7.bindPopup(popup_09678c52fe7ccc5658a6710a57dadb64)
+        ;
+
+        
+    
+    
+            poly_line_a6db4138d3ce207ca8ad70b04e1776f7.bindTooltip(
+                `<div>
+                     Route 9: 1 trips, 142,714 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_451cef68776de6d35f2e40e51660586b = L.polyline(
+                [[40.4345, 142.0842], [39.8997, 142.3114]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 6.21831557657247}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_7601217ce92a33ffa9e59886969b7e6b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_243dc859f5201ac02487d860a1ac4594 = $(`<div id="html_243dc859f5201ac02487d860a1ac4594" style="width: 100.0%; height: 100.0%;">         <h4>Route 10</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 47,861 GT<br>         <b>Average Gross Tonnage:</b> 47,861 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> VIKING ORION         </div>`)[0];
+                popup_7601217ce92a33ffa9e59886969b7e6b.setContent(html_243dc859f5201ac02487d860a1ac4594);
+            
+        
+
+        poly_line_451cef68776de6d35f2e40e51660586b.bindPopup(popup_7601217ce92a33ffa9e59886969b7e6b)
+        ;
+
+        
+    
+    
+            poly_line_451cef68776de6d35f2e40e51660586b.bindTooltip(
+                `<div>
+                     Route 10: 1 trips, 47,861 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_210e5b4caca21bc2177c27803b920296 = L.polyline(
+                [[42.82112, 15.86243], [43.10905, 15.28757]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 6.21831557657247}
+            ).addTo(feature_group_ed720fa95380d31ca8be4568f49907e4);
+        
+    
+        var popup_fddfe18c79e4a42ead65b9defac219dd = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_df9dfd94cb44c97a2d1d2f7ee7b3446f = $(`<div id="html_df9dfd94cb44c97a2d1d2f7ee7b3446f" style="width: 100.0%; height: 100.0%;">         <h4>Route 11</h4>         <b>Trip Count:</b> 1<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 47,861 GT<br>         <b>Average Gross Tonnage:</b> 47,861 GT<br>         <b>Average Duration:</b> 2.0 hours<br>         <b>Vessels:</b> VIKING JUPITER         </div>`)[0];
+                popup_fddfe18c79e4a42ead65b9defac219dd.setContent(html_df9dfd94cb44c97a2d1d2f7ee7b3446f);
+            
+        
+
+        poly_line_210e5b4caca21bc2177c27803b920296.bindPopup(popup_fddfe18c79e4a42ead65b9defac219dd)
+        ;
+
+        
+    
+    
+            poly_line_210e5b4caca21bc2177c27803b920296.bindTooltip(
+                `<div>
+                     Route 11: 1 trips, 47,861 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_ed720fa95380d31ca8be4568f49907e4.addTo(map_1e9eb130bb69ebd9c804af1b8635025b);
+        
+    
+            var feature_group_8befe5cf88e6b44404168ecf2c124ec1 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var marker_cluster_870c1b176d0f75e8fe9c24b59468ab53 = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_678ec0bf939edcbed23acf93a1b7eb60 = L.marker(
+                [53.182362, 5.4338014],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_837f924b6c70f4a7d5cc2514c64db6e5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_628dea3a497224932fa590039ba351cf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_bf0e1b15338c69467e4abb1e746cd4fb = $(`<div id="html_bf0e1b15338c69467e4abb1e746cd4fb" style="width: 100.0%; height: 100.0%;">Port 0</div>`)[0];
+                popup_628dea3a497224932fa590039ba351cf.setContent(html_bf0e1b15338c69467e4abb1e746cd4fb);
+            
+        
+
+        marker_678ec0bf939edcbed23acf93a1b7eb60.bindPopup(popup_628dea3a497224932fa590039ba351cf)
+        ;
+
+        
+    
+    
+                marker_678ec0bf939edcbed23acf93a1b7eb60.setIcon(icon_837f924b6c70f4a7d5cc2514c64db6e5);
+            
+    
+            var marker_189b07cc5723a14b7e3336552cad16bb = L.marker(
+                [42.343288, -71.028682],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_b1842f82d9d0c0306a0ac68b5bb5d358 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_4dd755253d6abc44950e2a401b09a3b2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_11dca669b11ce6636c842186335e198b = $(`<div id="html_11dca669b11ce6636c842186335e198b" style="width: 100.0%; height: 100.0%;">Port 1</div>`)[0];
+                popup_4dd755253d6abc44950e2a401b09a3b2.setContent(html_11dca669b11ce6636c842186335e198b);
+            
+        
+
+        marker_189b07cc5723a14b7e3336552cad16bb.bindPopup(popup_4dd755253d6abc44950e2a401b09a3b2)
+        ;
+
+        
+    
+    
+                marker_189b07cc5723a14b7e3336552cad16bb.setIcon(icon_b1842f82d9d0c0306a0ac68b5bb5d358);
+            
+    
+            var marker_ad3b55ce15a09b3b3590f763ae168228 = L.marker(
+                [20.495510000000003, -86.96919666666666],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_586e1c3b572c2d0499579d61f73e3892 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_dd08a63a946ffe01d430a304964f28f6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5d033f7837349981e624c2266b4bb553 = $(`<div id="html_5d033f7837349981e624c2266b4bb553" style="width: 100.0%; height: 100.0%;">Port 2</div>`)[0];
+                popup_dd08a63a946ffe01d430a304964f28f6.setContent(html_5d033f7837349981e624c2266b4bb553);
+            
+        
+
+        marker_ad3b55ce15a09b3b3590f763ae168228.bindPopup(popup_dd08a63a946ffe01d430a304964f28f6)
+        ;
+
+        
+    
+    
+                marker_ad3b55ce15a09b3b3590f763ae168228.setIcon(icon_586e1c3b572c2d0499579d61f73e3892);
+            
+    
+            var marker_bc8fd361c15b1d20b6db42695021e0e2 = L.marker(
+                [43.649595, -70.255855],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_163677fd3d24bc70f43e6de3cfada693 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1e4ea3dffb3621f8e8de79674eedc7f7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2488ae00afe4475bd51a9eac7a179ddd = $(`<div id="html_2488ae00afe4475bd51a9eac7a179ddd" style="width: 100.0%; height: 100.0%;">Port 3</div>`)[0];
+                popup_1e4ea3dffb3621f8e8de79674eedc7f7.setContent(html_2488ae00afe4475bd51a9eac7a179ddd);
+            
+        
+
+        marker_bc8fd361c15b1d20b6db42695021e0e2.bindPopup(popup_1e4ea3dffb3621f8e8de79674eedc7f7)
+        ;
+
+        
+    
+    
+                marker_bc8fd361c15b1d20b6db42695021e0e2.setIcon(icon_163677fd3d24bc70f43e6de3cfada693);
+            
+    
+            var marker_5414b00a20835834a46a06a4db2cfc00 = L.marker(
+                [46.22323333333333, -63.12645],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_2765f55566f3dca3d9d75693f40b12eb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_56f4db6f909a92ac3ed3dfa8a5d7007e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3f03f6f9de6671a05d004bc48948a048 = $(`<div id="html_3f03f6f9de6671a05d004bc48948a048" style="width: 100.0%; height: 100.0%;">Port 4</div>`)[0];
+                popup_56f4db6f909a92ac3ed3dfa8a5d7007e.setContent(html_3f03f6f9de6671a05d004bc48948a048);
+            
+        
+
+        marker_5414b00a20835834a46a06a4db2cfc00.bindPopup(popup_56f4db6f909a92ac3ed3dfa8a5d7007e)
+        ;
+
+        
+    
+    
+                marker_5414b00a20835834a46a06a4db2cfc00.setIcon(icon_2765f55566f3dca3d9d75693f40b12eb);
+            
+    
+            var marker_b7c60bd751085518a715fe0e7a66971e = L.marker(
+                [44.63827333333334, -63.565333333333335],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_9d7dcb7f25fe25eb887183af2a772ffa = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_dba606c6d57135d3f658519af1742b11 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6cc8456477aa0c02d3ef7146fc44e6a2 = $(`<div id="html_6cc8456477aa0c02d3ef7146fc44e6a2" style="width: 100.0%; height: 100.0%;">Port 5</div>`)[0];
+                popup_dba606c6d57135d3f658519af1742b11.setContent(html_6cc8456477aa0c02d3ef7146fc44e6a2);
+            
+        
+
+        marker_b7c60bd751085518a715fe0e7a66971e.bindPopup(popup_dba606c6d57135d3f658519af1742b11)
+        ;
+
+        
+    
+    
+                marker_b7c60bd751085518a715fe0e7a66971e.setIcon(icon_9d7dcb7f25fe25eb887183af2a772ffa);
+            
+    
+            var marker_4359b62f2f6c3efc04bae353d79b1ee9 = L.marker(
+                [18.72982, -87.688284],
+                {
+}
+            ).addTo(marker_cluster_870c1b176d0f75e8fe9c24b59468ab53);
+        
+    
+            var icon_90e74a9c23699236742d59714a3dec72 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "anchor",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2f3519b64555f47ea6f02b0929a91e7f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6c6cc7c51da5c7a57ed666077198687c = $(`<div id="html_6c6cc7c51da5c7a57ed666077198687c" style="width: 100.0%; height: 100.0%;">Port 6</div>`)[0];
+                popup_2f3519b64555f47ea6f02b0929a91e7f.setContent(html_6c6cc7c51da5c7a57ed666077198687c);
+            
+        
+
+        marker_4359b62f2f6c3efc04bae353d79b1ee9.bindPopup(popup_2f3519b64555f47ea6f02b0929a91e7f)
+        ;
+
+        
+    
+    
+                marker_4359b62f2f6c3efc04bae353d79b1ee9.setIcon(icon_90e74a9c23699236742d59714a3dec72);
+            
+    
+            marker_cluster_870c1b176d0f75e8fe9c24b59468ab53.addTo(feature_group_8befe5cf88e6b44404168ecf2c124ec1);
+        
+    
+            feature_group_8befe5cf88e6b44404168ecf2c124ec1.addTo(map_1e9eb130bb69ebd9c804af1b8635025b);
+        
+    
+            var layer_control_01f61aa1527699eccfa1978a9627b8c3_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_c272f159cd0fbcc241e2d09a36bf8888,
+                },
+                overlays :  {
+                    "Cruise Routes" : feature_group_ed720fa95380d31ca8be4568f49907e4,
+                    "Ports" : feature_group_8befe5cf88e6b44404168ecf2c124ec1,
+                },
+            };
+            let layer_control_01f61aa1527699eccfa1978a9627b8c3 = L.control.layers(
+                layer_control_01f61aa1527699eccfa1978a9627b8c3_layers.base_layers,
+                layer_control_01f61aa1527699eccfa1978a9627b8c3_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_1e9eb130bb69ebd9c804af1b8635025b);
+
+        
+</script>
+</html>

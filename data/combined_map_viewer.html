@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Combined Maritime Highway Map Viewer</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .header {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        iframe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            background-color: #1E88E5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #1565C0;
+        }
+        .description {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Maritime Highway Map - DBSCAN Aggregated Routes</h1>
+            <p>This visualization shows cruise vessel traffic patterns in the Mediterranean using DBSCAN clustering.</p>
+            
+            <div class="btn-container">
+                <button class="btn" onclick="document.getElementById('mapFrame').src='maritime_routes_simple.html'">Combined Data (Sept-Nov)</button>
+                <button class="btn" onclick="document.getElementById('mapFrame').src='cruise_highway_map_oct2024.html'">October Data Only</button>
+            </div>
+            
+            <div class="description">
+                <h3>About the visualization:</h3>
+                <p>This map demonstrates the use of the DBSCAN (Density-Based Spatial Clustering of Applications with Noise) algorithm to identify and group similar vessel routes into clusters, providing a clearer visualization of maritime traffic patterns.</p>
+                <p>Line thickness is proportional to the gross tonnage of vessels on each route. Click on any route to see details about the vessels, tonnage, and trip information.</p>
+                <p><strong>DBSCAN parameters used:</strong> eps=0.02, min_samples=2, min_speed=0.2 knots, min_trip_points=5</p>
+            </div>
+        </div>
+        <div class="map-container">
+            <iframe id="mapFrame" src="maritime_routes_simple.html"></iframe>
+        </div>
+    </div>
+</body>
+</html>
