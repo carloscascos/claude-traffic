@@ -237,15 +237,11 @@ def save_map(map_object, filename):
         map_object (folium.Map): Mapa a guardar
         filename (str): Nombre del archivo (sin extensión)
     """
-    wd = os.getcwd()
-    path = f"{wd}{filename}"
-
-    map_object.save(f"{path}.html")
+    # Usar la ruta completa proporcionada
+    map_object.save(f"{filename}.html")
 
 
 def save_figure(fig, filename, dpi=300):
-
-    import os
     """
     Guarda una figura de matplotlib como archivo PNG.
     
@@ -254,4 +250,5 @@ def save_figure(fig, filename, dpi=300):
         filename (str): Nombre del archivo (sin extensión)
         dpi (int, opcional): Resolución de la imagen. Defaults to 300.
     """
-    fig.savefig(f"{os.getcwd()}{filename}.png", dpi=dpi, bbox_inches='tight')
+    # Usar la ruta completa proporcionada
+    fig.savefig(f"{filename}.png", dpi=dpi, bbox_inches='tight')

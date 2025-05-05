@@ -156,7 +156,8 @@ def analyze_vessel_patterns(imo, period_days=365):
     total_period = (df['start'].iloc[-1] - df['start'].iloc[0]).total_seconds() / 3600  # en horas
     
     # Tiempo en navegación (aproximado)
-    navigation_time = total_period - total_port_time
+    # Convertir total_port_time a float para evitar error de tipos
+    navigation_time = total_period - float(total_port_time)
     
     # Puertos más visitados
     top_ports = df['portname'].value_counts().head(5).to_dict()
@@ -166,9 +167,11 @@ def analyze_vessel_patterns(imo, period_days=365):
     
     # Calcular distancia total recorrida
     total_distance = df['prev_leg'].sum()
+    total_distance = float(total_distance) if total_distance is not None else 0.0
     
     # Calcular velocidad promedio
     avg_speed = df['speed'].mean()
+    avg_speed = float(avg_speed) if avg_speed is not None else 0.0
     
     # Detección de rutas frecuentes
     port_pairs = []
@@ -191,7 +194,7 @@ def analyze_vessel_patterns(imo, period_days=365):
             "total_port_calls": len(df),
             "total_port_time_hours": float(total_port_time),
             "total_navigation_time_hours": float(navigation_time),
-            "port_time_percentage": float(total_port_time / total_period * 100) if total_period > 0 else 0,
+            "port_time_percentage": float(float(total_port_time) / total_period * 100) if total_period > 0 else 0,
             "navigation_time_percentage": float(navigation_time / total_period * 100) if total_period > 0 else 0
         },
         "top_ports": top_ports,
