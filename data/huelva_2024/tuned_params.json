@@ -1,0 +1,23 @@
+{
+  "clustering": {
+    "eps": 0.005,
+    "min_samples": 2
+  },
+  "visualization": {
+    "zoom_level": 10,
+    "line_opacity": 0.7,
+    "min_line_width": 2,
+    "max_line_width": 10,
+    "use_log_scale": true,
+    "cluster_routes": true,
+    "fleet_colors": {
+      "Cruise/Passenger": "#E41A1C",
+      "Container": "#377EB8",
+      "Bulk Carrier": "#4DAF4A",
+      "Ferry/Ro-Ro": "#FF7F00",
+      "Tanker": "#984EA3",
+      "Fishing": "#FFFF33"
+    },
+    "fleet_filtering": true
+  }
+}

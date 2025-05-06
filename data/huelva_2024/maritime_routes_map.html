@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_deca425a33a5dbbd2bbfea13a0041e3b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>
+    
+    
+    <div style="position: fixed; 
+                bottom: 50px; left: 50px; 
+                border: 2px solid grey; z-index: 9999; 
+                background-color: white;
+                padding: 10px; 
+                border-radius: 5px;">
+        <div style="font-weight: bold; margin-bottom: 5px;">Fleet Types</div>
+    
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #E41A1C; margin-right: 5px;"></span>
+                <span>Cruise/Passenger</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #377EB8; margin-right: 5px;"></span>
+                <span>Container</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #4DAF4A; margin-right: 5px;"></span>
+                <span>Bulk Carrier</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #984EA3; margin-right: 5px;"></span>
+                <span>Tanker</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #FF7F00; margin-right: 5px;"></span>
+                <span>Ferry/Ro-Ro</span>
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 3px;">
+                <span style="display: inline-block; width: 20px; height: 10px; 
+                       background-color: #FFFF33; margin-right: 5px;"></span>
+                <span>Fishing</span>
+            </div>
+            
+        <div style="margin-top: 8px; font-weight: bold;">Line Width = Gross Tonnage</div>
+    </div>
+    
+    
+    <div style="position: fixed; 
+                top: 10px; left: 50%; transform: translateX(-50%);
+                z-index: 9999; 
+                background-color: white;
+                padding: 10px; 
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                font-size: 16px;
+                font-weight: bold;">
+        Huelva Maritime Traffic - April 2024
+    </div>
+    
+    
+            <div class="folium-map" id="map_deca425a33a5dbbd2bbfea13a0041e3b" ></div>
+        
+
+<div id="additional-filters" style="position: fixed; top: 60px; right: 10px; 
+                                   background: white; padding: 10px; 
+                                   border-radius: 5px; border: 2px solid #ccc; 
+                                   z-index: 1000; max-width: 250px;">
+    <div style="font-weight: bold; margin-bottom: 8px;">Additional Filters</div>
+    <div id="filter-controls">
+        <!-- Weight filter -->
+        <div style="margin-bottom: 8px;">
+            <label for="weight-filter" style="display: block; margin-bottom: 3px;">
+                Minimum Gross Tonnage:
+            </label>
+            <input type="range" id="weight-filter" min="0" max="100" value="0" 
+                   style="width: 100%;" 
+                   oninput="document.getElementById('weight-value').innerText = this.value + '%'">
+            <div style="text-align: right; font-size: 12px;">
+                <span id="weight-value">0%</span>
+            </div>
+        </div>
+        
+        <!-- Date range filter (if timestamps available) -->
+        <div style="margin-bottom: 8px;">
+            <label style="display: block; margin-bottom: 3px;">
+                Date Range (if available):
+            </label>
+            <select id="date-filter" style="width: 100%;">
+                <option value="all">All Dates</option>
+                <option value="last_week">Last Week</option>
+                <option value="last_month">Last Month</option>
+                <option value="last_quarter">Last 3 Months</option>
+            </select>
+        </div>
+        
+        <!-- Apply button -->
+        <button onclick="applyFilters()" style="width: 100%; 
+                                               padding: 5px; 
+                                               background: #4CAF50; 
+                                               color: white; 
+                                               border: none; 
+                                               border-radius: 3px; 
+                                               cursor: pointer;">
+            Apply Filters
+        </button>
+        
+        <!-- Reset button -->
+        <button onclick="resetFilters()" style="width: 100%; 
+                                              margin-top: 5px;
+                                              padding: 5px; 
+                                              background: #f44336; 
+                                              color: white; 
+                                              border: none; 
+                                              border-radius: 3px; 
+                                              cursor: pointer;">
+            Reset Filters
+        </button>
+    </div>
+</div>
+
+<script>
+    // Store original visibility state
+    var originalVisibility = {};
+    var allPolylines = [];
+    
+    // Find all polylines when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all SVG paths that represent polylines
+        setTimeout(function() {
+            let paths = document.querySelectorAll('path');
+            paths.forEach(function(path, index) {
+                // Check if this is likely a route line (polyline)
+                if (path.getAttribute('stroke') && 
+                    path.getAttribute('stroke-opacity') && 
+                    !path.getAttribute('fill')) {
+                    
+                    allPolylines.push({
+                        element: path,
+                        weight: parseFloat(path.getAttribute('stroke-width')) || 1,
+                        id: 'polyline-' + index
+                    });
+                    
+                    // Store original visibility
+                    originalVisibility['polyline-' + index] = true;
+                }
+            });
+            
+            // Set max value for weight filter based on actual weights
+            let maxWeight = Math.max(...allPolylines.map(p => p.weight));
+            let minWeight = Math.min(...allPolylines.map(p => p.weight));
+            document.getElementById('weight-filter').max = maxWeight;
+            document.getElementById('weight-filter').min = minWeight;
+            document.getElementById('weight-filter').value = minWeight;
+            document.getElementById('weight-value').innerText = minWeight + ' GT';
+        }, 1000); // Wait for the map to fully load
+    });
+    
+    function applyFilters() {
+        // Get weight filter value
+        let minWeight = parseFloat(document.getElementById('weight-filter').value);
+        
+        // Apply filters to each polyline
+        allPolylines.forEach(function(polyline) {
+            let visible = polyline.weight >= minWeight;
+            
+            // Apply visibility
+            polyline.element.style.display = visible ? '' : 'none';
+        });
+    }
+    
+    function resetFilters() {
+        // Reset the weight filter control
+        let minWeight = Math.min(...allPolylines.map(p => p.weight));
+        document.getElementById('weight-filter').value = minWeight;
+        document.getElementById('weight-value').innerText = minWeight + ' GT';
+        
+        // Reset the date filter
+        document.getElementById('date-filter').value = 'all';
+        
+        // Reset all polylines to original visibility
+        allPolylines.forEach(function(polyline) {
+            polyline.element.style.display = '';
+        });
+    }
+</script>
+
+<div id="additional-filters" style="position: fixed; top: 60px; right: 10px; 
+                                   background: white; padding: 10px; 
+                                   border-radius: 5px; border: 2px solid #ccc; 
+                                   z-index: 1000; max-width: 250px;">
+    <div style="font-weight: bold; margin-bottom: 8px;">Additional Filters</div>
+    <div id="filter-controls">
+        <!-- Weight filter -->
+        <div style="margin-bottom: 8px;">
+            <label for="weight-filter" style="display: block; margin-bottom: 3px;">
+                Minimum Gross Tonnage:
+            </label>
+            <input type="range" id="weight-filter" min="0" max="100" value="0" 
+                   style="width: 100%;" 
+                   oninput="document.getElementById('weight-value').innerText = this.value + '%'">
+            <div style="text-align: right; font-size: 12px;">
+                <span id="weight-value">0%</span>
+            </div>
+        </div>
+        
+        <!-- Date range filter (if timestamps available) -->
+        <div style="margin-bottom: 8px;">
+            <label style="display: block; margin-bottom: 3px;">
+                Date Range (if available):
+            </label>
+            <select id="date-filter" style="width: 100%;">
+                <option value="all">All Dates</option>
+                <option value="last_week">Last Week</option>
+                <option value="last_month">Last Month</option>
+                <option value="last_quarter">Last 3 Months</option>
+            </select>
+        </div>
+        
+        <!-- Apply button -->
+        <button onclick="applyFilters()" style="width: 100%; 
+                                               padding: 5px; 
+                                               background: #4CAF50; 
+                                               color: white; 
+                                               border: none; 
+                                               border-radius: 3px; 
+                                               cursor: pointer;">
+            Apply Filters
+        </button>
+        
+        <!-- Reset button -->
+        <button onclick="resetFilters()" style="width: 100%; 
+                                              margin-top: 5px;
+                                              padding: 5px; 
+                                              background: #f44336; 
+                                              color: white; 
+                                              border: none; 
+                                              border-radius: 3px; 
+                                              cursor: pointer;">
+            Reset Filters
+        </button>
+    </div>
+</div>
+
+<script>
+    // Store original visibility state
+    var originalVisibility = {};
+    var allPolylines = [];
+    
+    // Find all polylines when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all SVG paths that represent polylines
+        setTimeout(function() {
+            let paths = document.querySelectorAll('path');
+            paths.forEach(function(path, index) {
+                // Check if this is likely a route line (polyline)
+                if (path.getAttribute('stroke') && 
+                    path.getAttribute('stroke-opacity') && 
+                    !path.getAttribute('fill')) {
+                    
+                    allPolylines.push({
+                        element: path,
+                        weight: parseFloat(path.getAttribute('stroke-width')) || 1,
+                        id: 'polyline-' + index
+                    });
+                    
+                    // Store original visibility
+                    originalVisibility['polyline-' + index] = true;
+                }
+            });
+            
+            // Set max value for weight filter based on actual weights
+            let maxWeight = Math.max(...allPolylines.map(p => p.weight));
+            let minWeight = Math.min(...allPolylines.map(p => p.weight));
+            document.getElementById('weight-filter').max = maxWeight;
+            document.getElementById('weight-filter').min = minWeight;
+            document.getElementById('weight-filter').value = minWeight;
+            document.getElementById('weight-value').innerText = minWeight + ' GT';
+        }, 1000); // Wait for the map to fully load
+    });
+    
+    function applyFilters() {
+        // Get weight filter value
+        let minWeight = parseFloat(document.getElementById('weight-filter').value);
+        
+        // Apply filters to each polyline
+        allPolylines.forEach(function(polyline) {
+            let visible = polyline.weight >= minWeight;
+            
+            // Apply visibility
+            polyline.element.style.display = visible ? '' : 'none';
+        });
+    }
+    
+    function resetFilters() {
+        // Reset the weight filter control
+        let minWeight = Math.min(...allPolylines.map(p => p.weight));
+        document.getElementById('weight-filter').value = minWeight;
+        document.getElementById('weight-value').innerText = minWeight + ' GT';
+        
+        // Reset the date filter
+        document.getElementById('date-filter').value = 'all';
+        
+        // Reset all polylines to original visibility
+        allPolylines.forEach(function(polyline) {
+            polyline.element.style.display = '';
+        });
+    }
+</script>
+</body>
+<script>
+    
+    
+            var map_deca425a33a5dbbd2bbfea13a0041e3b = L.map(
+                "map_deca425a33a5dbbd2bbfea13a0041e3b",
+                {
+                    center: [37.13158201983678, -6.846337848830383],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 7,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_71772e974a2de6a793e707aef8021289 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_71772e974a2de6a793e707aef8021289.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var measure_control_c32883cfa4cee6104f976413084034f0 = new L.Control.Measure(
+                {
+  "position": "topright",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_deca425a33a5dbbd2bbfea13a0041e3b.addControl(measure_control_c32883cfa4cee6104f976413084034f0);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_1058c78741d0d493157fbd4d95f4f17b = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_db9d332efa393c2ddec7af5459d85166 = L.polyline(
+                [[37.14, -6.85], [37.15, -6.87], [37.16, -6.89], [37.17, -6.91]],
+                {"bubblingMouseEvents": true, "color": "#E41A1C", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#E41A1C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 10.806034482758621}
+            ).addTo(feature_group_1058c78741d0d493157fbd4d95f4f17b);
+        
+    
+        var popup_12192d170a9fe17b0c24d3f8014169f3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ffa741b5cec09ea1e4bdd855fcee56a2 = $(`<div id="html_ffa741b5cec09ea1e4bdd855fcee56a2" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>COSTA DORADA</h4>             <b>Fleet:</b> Cruise/Passenger<br>             <b>IMO:</b> 9123456<br>             <b>Gross Tonnage:</b> 92,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-03 10:00 to 2024-04-03 13:00<br></div></div>`)[0];
+                popup_12192d170a9fe17b0c24d3f8014169f3.setContent(html_ffa741b5cec09ea1e4bdd855fcee56a2);
+            
+        
+
+        poly_line_db9d332efa393c2ddec7af5459d85166.bindPopup(popup_12192d170a9fe17b0c24d3f8014169f3)
+        ;
+
+        
+    
+    
+            poly_line_db9d332efa393c2ddec7af5459d85166.bindTooltip(
+                `<div>
+                     COSTA DORADA (Cruise/Passenger)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1b33734cf563e093f98ca2490e6010df = L.polyline(
+                [[37.135, -6.845], [37.14, -6.86], [37.145, -6.875], [37.15, -6.89]],
+                {"bubblingMouseEvents": true, "color": "#E41A1C", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#E41A1C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 8.1875}
+            ).addTo(feature_group_1058c78741d0d493157fbd4d95f4f17b);
+        
+    
+        var popup_949412061965203c65085126c676bac8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5f7a33039b907718bc58cdb3c8f5b05a = $(`<div id="html_5f7a33039b907718bc58cdb3c8f5b05a" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>HUELVA STAR</h4>             <b>Fleet:</b> Cruise/Passenger<br>             <b>IMO:</b> 9658722<br>             <b>Gross Tonnage:</b> 65,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-05 11:00 to 2024-04-05 14:00<br></div></div>`)[0];
+                popup_949412061965203c65085126c676bac8.setContent(html_5f7a33039b907718bc58cdb3c8f5b05a);
+            
+        
+
+        poly_line_1b33734cf563e093f98ca2490e6010df.bindPopup(popup_949412061965203c65085126c676bac8)
+        ;
+
+        
+    
+    
+            poly_line_1b33734cf563e093f98ca2490e6010df.bindTooltip(
+                `<div>
+                     HUELVA STAR (Cruise/Passenger)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_e3d9741d81410ceec0f53fa39457f134 = L.polyline(
+                [[37.132, -6.84], [37.135, -6.855], [37.14, -6.87], [37.15, -6.89]],
+                {"bubblingMouseEvents": true, "color": "#E41A1C", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#E41A1C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 9.836206896551724}
+            ).addTo(feature_group_1058c78741d0d493157fbd4d95f4f17b);
+        
+    
+        var popup_15875a9d86bc1447c4d5a4e2ce5bf61c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a2f7b8a11e39e4ac63e46dcb5d7d1d9e = $(`<div id="html_a2f7b8a11e39e4ac63e46dcb5d7d1d9e" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>GRANADA EXPRESS</h4>             <b>Fleet:</b> Cruise/Passenger<br>             <b>IMO:</b> 9769300<br>             <b>Gross Tonnage:</b> 82,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-01 09:30 to 2024-04-01 12:30<br></div></div>`)[0];
+                popup_15875a9d86bc1447c4d5a4e2ce5bf61c.setContent(html_a2f7b8a11e39e4ac63e46dcb5d7d1d9e);
+            
+        
+
+        poly_line_e3d9741d81410ceec0f53fa39457f134.bindPopup(popup_15875a9d86bc1447c4d5a4e2ce5bf61c)
+        ;
+
+        
+    
+    
+            poly_line_e3d9741d81410ceec0f53fa39457f134.bindTooltip(
+                `<div>
+                     GRANADA EXPRESS (Cruise/Passenger)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_de97eca75492f24fc1f870d5c8ff29f2 = L.polyline(
+                [[37.132, -6.84], [37.135, -6.855], [37.14, -6.87], [37.15, -6.89]],
+                {"bubblingMouseEvents": true, "color": "#E41A1C", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#E41A1C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 9.836206896551724}
+            ).addTo(feature_group_1058c78741d0d493157fbd4d95f4f17b);
+        
+    
+        var popup_5ba9b604665dd367730e3a570b462f46 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c1f78c84e0bcf05c6de65fd5cf510522 = $(`<div id="html_c1f78c84e0bcf05c6de65fd5cf510522" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>GRANADA EXPRESS</h4>             <b>Fleet:</b> Cruise/Passenger<br>             <b>IMO:</b> 9769300<br>             <b>Gross Tonnage:</b> 82,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-29 09:30 to 2024-04-29 12:30<br></div></div>`)[0];
+                popup_5ba9b604665dd367730e3a570b462f46.setContent(html_c1f78c84e0bcf05c6de65fd5cf510522);
+            
+        
+
+        poly_line_de97eca75492f24fc1f870d5c8ff29f2.bindPopup(popup_5ba9b604665dd367730e3a570b462f46)
+        ;
+
+        
+    
+    
+            poly_line_de97eca75492f24fc1f870d5c8ff29f2.bindTooltip(
+                `<div>
+                     GRANADA EXPRESS (Cruise/Passenger)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_1058c78741d0d493157fbd4d95f4f17b.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_a1c1161e50420f8f38b8dec453373eab = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_c633de9c17cddd1d789cc61854ae6890 = L.polyline(
+                [[37.135, -6.845], [37.14, -6.86], [37.145, -6.875], [37.15, -6.89]],
+                {"bubblingMouseEvents": true, "color": "#377EB8", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#377EB8", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 11.0}
+            ).addTo(feature_group_a1c1161e50420f8f38b8dec453373eab);
+        
+    
+        var popup_7f5ff17cdcd6d6252ffa3c78c41e8dc7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1dfc943b0407783059d13497c573729b = $(`<div id="html_1dfc943b0407783059d13497c573729b" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>IBERIA CONTAINER</h4>             <b>Fleet:</b> Container<br>             <b>IMO:</b> 9204063<br>             <b>Gross Tonnage:</b> 94,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-08 10:00 to 2024-04-08 13:00<br></div></div>`)[0];
+                popup_7f5ff17cdcd6d6252ffa3c78c41e8dc7.setContent(html_1dfc943b0407783059d13497c573729b);
+            
+        
+
+        poly_line_c633de9c17cddd1d789cc61854ae6890.bindPopup(popup_7f5ff17cdcd6d6252ffa3c78c41e8dc7)
+        ;
+
+        
+    
+    
+            poly_line_c633de9c17cddd1d789cc61854ae6890.bindTooltip(
+                `<div>
+                     IBERIA CONTAINER (Container)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_916c5434cba81f338896dc24232b9547 = L.polyline(
+                [[37.135, -6.85], [37.14, -6.87], [37.145, -6.89], [37.15, -6.91]],
+                {"bubblingMouseEvents": true, "color": "#377EB8", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#377EB8", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 8.1875}
+            ).addTo(feature_group_a1c1161e50420f8f38b8dec453373eab);
+        
+    
+        var popup_5d60511da3a8fc68b87c5ddbf46e7573 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_53ca42b67e0c91be71449a81d9dfbb95 = $(`<div id="html_53ca42b67e0c91be71449a81d9dfbb95" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>MEDITERRANEAN CARRIER</h4>             <b>Fleet:</b> Container<br>             <b>IMO:</b> 9234567<br>             <b>Gross Tonnage:</b> 65,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-10 08:30 to 2024-04-10 11:30<br></div></div>`)[0];
+                popup_5d60511da3a8fc68b87c5ddbf46e7573.setContent(html_53ca42b67e0c91be71449a81d9dfbb95);
+            
+        
+
+        poly_line_916c5434cba81f338896dc24232b9547.bindPopup(popup_5d60511da3a8fc68b87c5ddbf46e7573)
+        ;
+
+        
+    
+    
+            poly_line_916c5434cba81f338896dc24232b9547.bindTooltip(
+                `<div>
+                     MEDITERRANEAN CARRIER (Container)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_a1c1161e50420f8f38b8dec453373eab.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_a07d014af9250e9736b92c01460d5f97 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_959924d3973f0adbe98685df772849f8 = L.polyline(
+                [[37.12, -6.82], [37.11, -6.81], [37.1, -6.8], [37.09, -6.79]],
+                {"bubblingMouseEvents": true, "color": "#4DAF4A", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#4DAF4A", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 7.217672413793103}
+            ).addTo(feature_group_a07d014af9250e9736b92c01460d5f97);
+        
+    
+        var popup_fa91085d87fc6f1c01f03e92e0ffe537 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_4e85b249c3301a08a3cb2b7615c4e690 = $(`<div id="html_4e85b249c3301a08a3cb2b7615c4e690" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>IBERIAN TRADER</h4>             <b>Fleet:</b> Bulk Carrier<br>             <b>IMO:</b> 9345678<br>             <b>Gross Tonnage:</b> 55,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-20 09:00 to 2024-04-20 12:00<br></div></div>`)[0];
+                popup_fa91085d87fc6f1c01f03e92e0ffe537.setContent(html_4e85b249c3301a08a3cb2b7615c4e690);
+            
+        
+
+        poly_line_959924d3973f0adbe98685df772849f8.bindPopup(popup_fa91085d87fc6f1c01f03e92e0ffe537)
+        ;
+
+        
+    
+    
+            poly_line_959924d3973f0adbe98685df772849f8.bindTooltip(
+                `<div>
+                     IBERIAN TRADER (Bulk Carrier)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c904967f9ab778fc752e0bdc58b94e64 = L.polyline(
+                [[37.125, -6.82], [37.12, -6.81], [37.115, -6.8], [37.11, -6.79]],
+                {"bubblingMouseEvents": true, "color": "#4DAF4A", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#4DAF4A", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 6.247844827586207}
+            ).addTo(feature_group_a07d014af9250e9736b92c01460d5f97);
+        
+    
+        var popup_05990d4d31ee4bf41b3b4adc6952d488 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7d716523bc2b01e0bd385de11367e932 = $(`<div id="html_7d716523bc2b01e0bd385de11367e932" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>ANDALUCIA BULK</h4>             <b>Fleet:</b> Bulk Carrier<br>             <b>IMO:</b> 9356426<br>             <b>Gross Tonnage:</b> 45,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-12 08:00 to 2024-04-12 11:00<br></div></div>`)[0];
+                popup_05990d4d31ee4bf41b3b4adc6952d488.setContent(html_7d716523bc2b01e0bd385de11367e932);
+            
+        
+
+        poly_line_c904967f9ab778fc752e0bdc58b94e64.bindPopup(popup_05990d4d31ee4bf41b3b4adc6952d488)
+        ;
+
+        
+    
+    
+            poly_line_c904967f9ab778fc752e0bdc58b94e64.bindTooltip(
+                `<div>
+                     ANDALUCIA BULK (Bulk Carrier)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_a07d014af9250e9736b92c01460d5f97.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_97fbb53cdabaed9ef7049f46739bce80 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_994a86ae059bcfe09f29e54d6830689c = L.polyline(
+                [[37.125, -6.825], [37.12, -6.82], [37.115, -6.815], [37.11, -6.81]],
+                {"bubblingMouseEvents": true, "color": "#FF7F00", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#FF7F00", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 4.987068965517242}
+            ).addTo(feature_group_97fbb53cdabaed9ef7049f46739bce80);
+        
+    
+        var popup_0a56d4446cd30f20093545d28123b520 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2041c650e54789e44ae78d21176a275b = $(`<div id="html_2041c650e54789e44ae78d21176a275b" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>SEVILLA EXPRESS</h4>             <b>Fleet:</b> Ferry/Ro-Ro<br>             <b>IMO:</b> 9451070<br>             <b>Gross Tonnage:</b> 32,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-15 07:00 to 2024-04-15 10:00<br></div></div>`)[0];
+                popup_0a56d4446cd30f20093545d28123b520.setContent(html_2041c650e54789e44ae78d21176a275b);
+            
+        
+
+        poly_line_994a86ae059bcfe09f29e54d6830689c.bindPopup(popup_0a56d4446cd30f20093545d28123b520)
+        ;
+
+        
+    
+    
+            poly_line_994a86ae059bcfe09f29e54d6830689c.bindTooltip(
+                `<div>
+                     SEVILLA EXPRESS (Ferry/Ro-Ro)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_7ed5bb19dd2845bfd06acbb7b41c973a = L.polyline(
+                [[37.12, -6.82], [37.11, -6.81], [37.1, -6.8], [37.09, -6.79]],
+                {"bubblingMouseEvents": true, "color": "#FF7F00", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#FF7F00", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3.677801724137931}
+            ).addTo(feature_group_97fbb53cdabaed9ef7049f46739bce80);
+        
+    
+        var popup_2d27919f136ef013f808d794a2cd7164 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_58e7ca93ff20469a9f885a5cd44cb4e5 = $(`<div id="html_58e7ca93ff20469a9f885a5cd44cb4e5" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>ANDALUCIA FERRY</h4>             <b>Fleet:</b> Ferry/Ro-Ro<br>             <b>IMO:</b> 9876543<br>             <b>Gross Tonnage:</b> 18,500 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-25 08:30 to 2024-04-25 11:30<br></div></div>`)[0];
+                popup_2d27919f136ef013f808d794a2cd7164.setContent(html_58e7ca93ff20469a9f885a5cd44cb4e5);
+            
+        
+
+        poly_line_7ed5bb19dd2845bfd06acbb7b41c973a.bindPopup(popup_2d27919f136ef013f808d794a2cd7164)
+        ;
+
+        
+    
+    
+            poly_line_7ed5bb19dd2845bfd06acbb7b41c973a.bindTooltip(
+                `<div>
+                     ANDALUCIA FERRY (Ferry/Ro-Ro)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_97fbb53cdabaed9ef7049f46739bce80.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_a242951ea6db39edeaad174bd4e9aa6d = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_68dde4cb45c1a3d139f821a07642a663 = L.polyline(
+                [[37.14, -6.84], [37.15, -6.85], [37.16, -6.86], [37.17, -6.87]],
+                {"bubblingMouseEvents": true, "color": "#984EA3", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#984EA3", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 9.448275862068964}
+            ).addTo(feature_group_a242951ea6db39edeaad174bd4e9aa6d);
+        
+    
+        var popup_10df35091571ea44ce575962152f9df5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_366cbfdbed7b915f78f4b37e4b997fbf = $(`<div id="html_366cbfdbed7b915f78f4b37e4b997fbf" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>HUELVA TANKER</h4>             <b>Fleet:</b> Tanker<br>             <b>IMO:</b> 9678342<br>             <b>Gross Tonnage:</b> 78,000 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-18 09:00 to 2024-04-18 12:00<br></div></div>`)[0];
+                popup_10df35091571ea44ce575962152f9df5.setContent(html_366cbfdbed7b915f78f4b37e4b997fbf);
+            
+        
+
+        poly_line_68dde4cb45c1a3d139f821a07642a663.bindPopup(popup_10df35091571ea44ce575962152f9df5)
+        ;
+
+        
+    
+    
+            poly_line_68dde4cb45c1a3d139f821a07642a663.bindTooltip(
+                `<div>
+                     HUELVA TANKER (Tanker)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_a242951ea6db39edeaad174bd4e9aa6d.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_04905e269a2df038b83edb8484486f2d = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_0a922e5b94a947a7c0210059abf124e3 = L.polyline(
+                [[37.125, -6.835], [37.12, -6.84], [37.115, -6.845], [37.11, -6.85]],
+                {"bubblingMouseEvents": true, "color": "#FFFF33", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#FFFF33", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_04905e269a2df038b83edb8484486f2d);
+        
+    
+        var popup_3911057725022e432824266c4538d0be = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9ddc1d6bf201e194082aacc0cdb3673d = $(`<div id="html_9ddc1d6bf201e194082aacc0cdb3673d" style="width: 100.0%; height: 100.0%;">         <div style="max-width: 300px">             <h4>CADIZ FISHER</h4>             <b>Fleet:</b> Fishing<br>             <b>IMO:</b> 9789521<br>             <b>Gross Tonnage:</b> 1,200 GT<br>         <b>Trip Duration:</b> 3.0 hours<br><b>Period:</b> 2024-04-22 06:00 to 2024-04-22 09:00<br></div></div>`)[0];
+                popup_3911057725022e432824266c4538d0be.setContent(html_9ddc1d6bf201e194082aacc0cdb3673d);
+            
+        
+
+        poly_line_0a922e5b94a947a7c0210059abf124e3.bindPopup(popup_3911057725022e432824266c4538d0be)
+        ;
+
+        
+    
+    
+            poly_line_0a922e5b94a947a7c0210059abf124e3.bindTooltip(
+                `<div>
+                     CADIZ FISHER (Fishing)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_04905e269a2df038b83edb8484486f2d.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var feature_group_e404639f5279e2609665c8c7510e9c88 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_e404639f5279e2609665c8c7510e9c88.addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+        
+    
+            var layer_control_986be663a431164acdd460d155beb77b_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_71772e974a2de6a793e707aef8021289,
+                },
+                overlays :  {
+                    "Cruise/Passenger" : feature_group_1058c78741d0d493157fbd4d95f4f17b,
+                    "Container" : feature_group_a1c1161e50420f8f38b8dec453373eab,
+                    "Bulk Carrier" : feature_group_a07d014af9250e9736b92c01460d5f97,
+                    "Ferry/Ro-Ro" : feature_group_97fbb53cdabaed9ef7049f46739bce80,
+                    "Tanker" : feature_group_a242951ea6db39edeaad174bd4e9aa6d,
+                    "Fishing" : feature_group_04905e269a2df038b83edb8484486f2d,
+                    "All Routes" : feature_group_e404639f5279e2609665c8c7510e9c88,
+                },
+            };
+            let layer_control_986be663a431164acdd460d155beb77b = L.control.layers(
+                layer_control_986be663a431164acdd460d155beb77b_layers.base_layers,
+                layer_control_986be663a431164acdd460d155beb77b_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_deca425a33a5dbbd2bbfea13a0041e3b);
+
+        
+</script>
+</html>
