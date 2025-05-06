@@ -23,6 +23,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from datetime import datetime
+import json
 import sys
 
 def load_vessel_data(input_file):
@@ -102,6 +103,14 @@ def create_trip_lines(df):
     """
     print("Creating trip lines...")
     
+    # Check column names for latitude and longitude
+    lat_col = 'latitude' if 'latitude' in df.columns else 'lat'
+    lng_col = 'longitude' if 'longitude' in df.columns else 'lng'
+    
+    if lat_col not in df.columns or lng_col not in df.columns:
+        print(f"Error: Required columns not found. Available columns: {df.columns.tolist()}")
+        return gpd.GeoDataFrame()
+    
     # Group by trip ID and create LineString for each trip
     trip_lines = []
     trip_data = []
@@ -111,7 +120,7 @@ def create_trip_lines(df):
         trip_points = trip_points.sort_values('timestamp')
         
         # Create line coordinates
-        line_coords = [(row['longitude'], row['latitude']) for _, row in trip_points.iterrows()]
+        line_coords = [(row[lng_col], row[lat_col]) for _, row in trip_points.iterrows()]
         
         if len(line_coords) >= 2:
             # Create LineString
@@ -338,7 +347,35 @@ def aggregate_routes(clustered_gdf):
     
     if clustered_routes.empty:
         print("No clustered routes to aggregate.")
-        return clustered_gdf
+        
+        # If we're using only unclustered routes, prepare them with required columns
+        if not unclustered_routes.empty:
+            unclustered_data = []
+            for idx, route in unclustered_routes.iterrows():
+                unclustered_data.append({
+                    'route_id': f"single_{idx}",
+                    'vessel_count': 1,
+                    'trip_count': 1,
+                    'total_gross_tonnage': route['gross_tonnage'],
+                    'avg_gross_tonnage': route['gross_tonnage'],
+                    'vessel_type': route['vessel_type'] if 'vessel_type' in route else None,
+                    'fleet': route['fleet'] if 'fleet' in route else None,
+                    'geometry': route.geometry,
+                    'vessel_names': route['vessel_name'],
+                    'avg_duration_hours': route['duration_hours']
+                })
+            
+            # Create GeoDataFrame with unclustered routes
+            unclustered_gdf = gpd.GeoDataFrame(unclustered_data, crs=unclustered_routes.crs)
+            print(f"Added {len(unclustered_gdf)} individual unclustered routes.")
+            return unclustered_gdf
+        else:
+            # If there are no routes at all, return empty dataframe with required columns
+            empty_df = pd.DataFrame(columns=[
+                'route_id', 'vessel_count', 'trip_count', 'total_gross_tonnage', 
+                'avg_gross_tonnage', 'vessel_type', 'fleet', 'vessel_names', 'avg_duration_hours'
+            ])
+            return gpd.GeoDataFrame(empty_df, geometry=[], crs=clustered_gdf.crs)
     
     # Aggregate by cluster
     aggregated_routes = []
@@ -367,6 +404,8 @@ def aggregate_routes(clustered_gdf):
             vessel_names_str += f" and {len(vessel_names) - 5} more"
         
         # Select a representative route (the one with the median length)
+        # Reset index to avoid KeyError issues
+        cluster_group = cluster_group.reset_index(drop=True)
         cluster_group['length'] = cluster_group.geometry.length
         median_idx = cluster_group['length'].argsort()[len(cluster_group) // 2]
         representative_line = cluster_group.iloc[median_idx].geometry
@@ -432,6 +471,14 @@ def create_port_data(df, port_radius=0.05):
     """
     print(f"Extracting port locations (radius={port_radius})...")
     
+    # Check column names for latitude and longitude
+    lat_col = 'latitude' if 'latitude' in df.columns else 'lat'
+    lng_col = 'longitude' if 'longitude' in df.columns else 'lng'
+    
+    if lat_col not in df.columns or lng_col not in df.columns:
+        print(f"Error: Required columns not found. Available columns: {df.columns.tolist()}")
+        return gpd.GeoDataFrame()
+    
     # Filter for slow/stopped vessels
     speed_column = 'calculated_speed' if 'calculated_speed' in df.columns else 'speed'
     
@@ -446,7 +493,7 @@ def create_port_data(df, port_radius=0.05):
         return gpd.GeoDataFrame()
     
     # Create points
-    points = [Point(row['longitude'], row['latitude']) for _, row in stopped_df.iterrows()]
+    points = [Point(row[lng_col], row[lat_col]) for _, row in stopped_df.iterrows()]
     
     # Create GeoDataFrame
     points_gdf = gpd.GeoDataFrame(
@@ -493,7 +540,7 @@ def create_port_data(df, port_radius=0.05):
     return port_gdf
 
 def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.html', 
-                 by_vessel_type=False, routes_only=False):
+                 by_vessel_type=False, routes_only=True):
     """
     Generate a maritime highway map with routes proportional to traffic volume.
     
@@ -523,8 +570,28 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
     centroids = routes_gdf.geometry.centroid
     map_center = [centroids.y.mean(), centroids.x.mean()]
     
-    # Create base map
-    m = folium.Map(location=map_center, zoom_start=6, tiles='CartoDB positron')
+    # Analyze coordinate ranges to ensure map is properly centered
+    min_lat = routes_gdf.bounds['miny'].min()
+    max_lat = routes_gdf.bounds['maxy'].max()
+    min_lng = routes_gdf.bounds['minx'].min()
+    max_lng = routes_gdf.bounds['maxx'].max()
+    
+    print(f"Coordinate ranges:")
+    print(f"  Latitude: {min_lat} to {max_lat}")
+    print(f"  Longitude: {min_lng} to {max_lng}")
+    print(f"  Map center: {map_center}")
+    
+    # Print a summary of what's being visualized
+    print(f"Visualizing {len(routes_gdf)} routes")
+    
+    # Create base map - use a more appropriate zoom level based on the data
+    zoom_level = 6
+    if max_lng - min_lng > 20 or max_lat - min_lat > 20:
+        zoom_level = 3  # Wider view for dispersed data
+    elif max_lng - min_lng < 5 and max_lat - min_lat < 5:
+        zoom_level = 8  # Closer view for concentrated data
+        
+    m = folium.Map(location=map_center, zoom_start=zoom_level, tiles='CartoDB positron')
     
     # Add scale
     folium.plugins.MeasureControl(position='topright', primary_length_unit='kilometers').add_to(m)
@@ -607,7 +674,23 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         fg_routes.add_to(m)
     
     # Add routes to map
+    route_count = 0
+    print("Adding routes to map...")
+    
     for idx, route in routes_gdf.iterrows():
+        # Debug each route
+        if idx < 5 or idx % 20 == 0:  # Log first 5 routes and then every 20th route
+            print(f"Processing route {idx}: {route['route_id']}")
+            if hasattr(route.geometry, 'coords'):
+                points = list(route.geometry.coords)
+                if points:
+                    print(f"  First point: {points[0]}, Last point: {points[-1]}")
+                    print(f"  Number of points: {len(points)}")
+                else:
+                    print("  No coordinates in geometry")
+            else:
+                print(f"  Geometry type: {route.geometry.geom_type}")
+        
         # Calculate line width
         width = get_line_width(route['total_gross_tonnage'])
         
@@ -648,8 +731,40 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         <b>Vessels:</b> {route['vessel_names']}
         """
         
+        # Check if geometry is valid and has coordinates
+        if not hasattr(route.geometry, 'coords'):
+            print(f"  Skipping route {idx}: Invalid geometry type {route.geometry.geom_type}")
+            continue
+            
+        coords = list(route.geometry.coords)
+        if len(coords) < 2:
+            print(f"  Skipping route {idx}: Not enough coordinate points")
+            continue
+        
         # Convert LineString to coordinates for Folium
-        line_coords = [(point[1], point[0]) for point in list(route.geometry.coords)]
+        line_coords = [(point[1], point[0]) for point in coords]
+        route_count += 1
+        
+        # Create polyline
+        polyline = folium.PolyLine(
+            line_coords,
+            color=color,
+            weight=width,
+            opacity=0.7,
+            tooltip=tooltip,
+            popup=folium.Popup(popup_html, max_width=300)
+        )
+        
+        # Add to appropriate feature group
+        if by_vessel_type:
+            if 'vessel_type' in route and route['vessel_type'] and route['vessel_type'] in vessel_type_groups:
+                vessel_type_groups[route['vessel_type']].add_child(polyline)
+            elif 'fleet' in route and route['fleet'] and route['fleet'] in vessel_type_groups:
+                vessel_type_groups[route['fleet']].add_child(polyline)
+            else:
+                vessel_type_groups['Other'].add_child(polyline)
+        else:
+            fg_routes.add_child(polyline)
         
         # Create polyline
         polyline = folium.PolyLine(
@@ -818,6 +933,10 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         map_title = "Container Ship Maritime Highway Map"
     elif "tanker" in output_file.lower() or any(route.get('vessel_type') == 'Tanker' for _, route in routes_gdf.iterrows()):
         map_title = "Tanker Maritime Highway Map"
+        
+    # Add date/time to title for better tracking
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+    map_title = f"{map_title} - Generated {current_time}"
     
     # Add title with the date range
     title_html = f'''
@@ -842,21 +961,52 @@ def main():
     Main function to generate a maritime highway map.
     """
     parser = argparse.ArgumentParser(description='Generate a maritime highway map.')
-    parser.add_argument('--input', type=str, required=True, help='Input CSV file with vessel positions')
+    parser.add_argument('--input', type=str, help='Input CSV file with vessel positions')
     parser.add_argument('--output', type=str, default='results/maritime_routes_map.html', help='Output HTML file for the map')
     parser.add_argument('--min_speed', type=float, default=3.0, help='Minimum speed (knots) for route points')
     parser.add_argument('--min_trip_points', type=int, default=10, help='Minimum points for a valid trip')
     parser.add_argument('--cluster_eps', type=float, default=0.01, help='DBSCAN eps parameter for route clustering')
     parser.add_argument('--cluster_min_samples', type=int, default=2, help='DBSCAN min_samples parameter for route clustering')
     parser.add_argument('--by_vessel_type', action='store_true', help='Color routes by vessel type')
-    parser.add_argument('--routes_only', action='store_true', help='Show only routes (no ports)')
+    parser.add_argument('--show_ports', action='store_true', help='Show ports in addition to routes (default: routes only)')
+    parser.add_argument('--params', type=str, help='JSON file with parameters (overrides other arguments)')
     
     args = parser.parse_args()
+    
+    # Load parameters from JSON file if specified
+    if args.params:
+        try:
+            import json
+            print(f"Loading parameters from {args.params}...")
+            with open(args.params, 'r') as f:
+                params = json.load(f)
+            
+            # Override arguments with values from JSON
+            for key, value in params.items():
+                if key in vars(args) and key != 'params':
+                    setattr(args, key, value)
+            
+            print("Parameters loaded successfully.")
+                
+            # If input file is missing but in params, use it
+            if not args.input and 'input_file' in params:
+                args.input = params['input_file']
+                print(f"Using input file from params: {args.input}")
+                
+        except Exception as e:
+            print(f"Error loading parameters from JSON: {e}")
+            print("Continuing with command-line arguments.")
+    
+    # Check if input is specified
+    if not args.input:
+        print("Error: No input file specified. Use --input or --params.")
+        return
     
     # Print the parameters
     print(f"Generating maritime highway map with parameters:")
     for arg in vars(args):
-        print(f"  {arg}: {getattr(args, arg)}")
+        if arg != 'params':  # Skip printing the params filename
+            print(f"  {arg}: {getattr(args, arg)}")
     
     # Load the data
     df = load_vessel_data(args.input)
@@ -897,7 +1047,7 @@ def main():
         port_gdf, 
         args.output, 
         by_vessel_type=args.by_vessel_type,
-        routes_only=args.routes_only
+        routes_only=not args.show_ports
     )
     
     print("Maritime highway map generation completed.")
