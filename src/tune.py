@@ -170,18 +170,42 @@ def simplify_trip_lines(gdf, tolerance=0.001):
     
     return simplified_gdf
 
-def extract_line_features(line, num_points=40):
-    """Extract features from a LineString by sampling points along the line."""
+def extract_line_features(line, num_points=60):
+    """
+    Extract features from a LineString by sampling points along the line.
+    Uses more points and includes directional information for better similarity detection.
+    """
     if not line.is_empty:
         try:
-            # Sample points along the line
+            # Sample more points along the line for better representation
             distances = np.linspace(0, line.length, num_points)
             points = [line.interpolate(distance) for distance in distances]
             
             # Extract coordinates
             features = []
+            
+            # Add normalized start and end points (higher weight)
+            start_x, start_y = line.coords[0]
+            end_x, end_y = line.coords[-1]
+            features.extend([start_x, start_y, end_x, end_y])
+            
+            # Add general direction vector
+            direction_x = end_x - start_x
+            direction_y = end_y - start_y
+            # Normalize direction to avoid influencing clustering with route length
+            magnitude = np.sqrt(direction_x**2 + direction_y**2)
+            if magnitude > 0:
+                direction_x /= magnitude
+                direction_y /= magnitude
+            features.extend([direction_x, direction_y])
+            
+            # Add all sampled points
             for point in points:
                 features.extend([point.x, point.y])
+            
+            # Add line bounding box (min/max coordinates)
+            minx, miny, maxx, maxy = line.bounds
+            features.extend([minx, miny, maxx, maxy])
             
             return features
         except Exception as e:
@@ -190,8 +214,10 @@ def extract_line_features(line, num_points=40):
     return None
 
 def cluster_routes(gdf, eps, min_samples, by_vessel_type=False):
-    """Cluster similar routes using DBSCAN."""
-    print(f"Clustering routes (eps={eps}, min_samples={min_samples})...")
+    """
+    Cluster similar routes using DBSCAN with enhanced feature extraction and metrics.
+    """
+    print(f"Clustering routes (eps={eps:.4f}, min_samples={min_samples})...")
     
     if by_vessel_type and 'vessel_type' in gdf.columns:
         # Cluster separately by vessel type (not our focus for tuning)
@@ -201,6 +227,7 @@ def cluster_routes(gdf, eps, min_samples, by_vessel_type=False):
     features = []
     valid_indices = []
     
+    print(f"Extracting features from {len(gdf)} route lines...")
     for idx, row in gdf.iterrows():
         line_features = extract_line_features(row.geometry)
         if line_features:
@@ -214,20 +241,56 @@ def cluster_routes(gdf, eps, min_samples, by_vessel_type=False):
     # Convert to numpy array
     features_array = np.array(features)
     
-    # Normalize features
+    # Check feature dimensions
+    feature_length = features_array.shape[1]
+    print(f"Feature vector length: {feature_length}")
+    
+    # Normalize features to prevent any dimension from dominating
     scaler = StandardScaler()
     features_array = scaler.fit_transform(features_array)
     
-    # Perform DBSCAN clustering
-    clustering = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean').fit(features_array)
+    # For very small datasets, reduce min_samples to ensure we get some clustering
+    if len(features_array) < 10 and min_samples > 2:
+        print(f"Small dataset detected ({len(features_array)} routes). Reducing min_samples to 2.")
+        min_samples = 2
     
-    # Count clusters
-    n_clusters = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
-    n_unclustered = (clustering.labels_ == -1).sum()
+    # Perform DBSCAN clustering with detailed output
+    print(f"Running DBSCAN with {len(features_array)} routes...")
+    clustering = DBSCAN(
+        eps=eps, 
+        min_samples=min_samples, 
+        metric='euclidean',
+        n_jobs=-1  # Use all available cores
+    ).fit(features_array)
     
+    # Get cluster labels
+    labels = clustering.labels_
+    
+    # Count clusters and analyze distribution
+    unique_labels = set(labels)
+    n_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
+    n_unclustered = (labels == -1).sum()
+    n_clustered = len(labels) - n_unclustered
+    
+    # Print detailed clustering statistics
     print(f"Found {n_clusters} route clusters. {n_unclustered} routes were not clustered.")
     
-    return n_clusters, len(valid_indices) - n_unclustered
+    if n_clusters > 0:
+        # Count routes per cluster
+        cluster_sizes = {}
+        for label in unique_labels:
+            if label != -1:  # Skip noise points
+                cluster_sizes[label] = (labels == label).sum()
+        
+        # Print cluster sizes
+        sizes_str = ", ".join([f"Cluster {k}: {v} routes" for k, v in cluster_sizes.items()])
+        print(f"Cluster sizes: {sizes_str}")
+        
+        # Calculate clustering efficiency
+        clustering_ratio = n_clustered / len(labels)
+        print(f"Clustering efficiency: {clustering_ratio:.2f} ({n_clustered}/{len(labels)} routes)")
+    
+    return n_clusters, n_clustered
 
 def evaluate_parameters(df, params):
     """
@@ -256,6 +319,17 @@ def evaluate_parameters(df, params):
         params['cluster_eps'], 
         params['cluster_min_samples']
     )
+    
+    # Add more detailed logging
+    total_routes = len(trip_lines_gdf)
+    unclustered_routes = total_routes - n_clustered_routes
+    clustering_percentage = (n_clustered_routes / total_routes * 100) if total_routes > 0 else 0
+    
+    print(f"Clustering efficiency: {n_clustered_routes}/{total_routes} routes clustered ({clustering_percentage:.1f}%)")
+    
+    if n_clusters > 0:
+        avg_routes_per_cluster = n_clustered_routes / n_clusters
+        print(f"Average routes per cluster: {avg_routes_per_cluster:.1f}")
     
     return valid_trips, len(trip_lines_gdf), n_clusters, n_clustered_routes
 
@@ -315,35 +389,116 @@ def binary_search_tune(df):
     # Now optimize clustering parameters
     print("\nStep 2: Optimizing clustering parameters...")
     
-    # Try different cluster_eps values (more important than min_samples)
-    eps_values = [0.005, 0.01, 0.015, 0.02, 0.03, 0.05]
-    samples_values = [2, 3]
+    # Use a wider range of eps values with exponential increase
+    # This allows testing both fine-grained and coarse clustering
+    eps_values = [0.005, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.3]
+    samples_values = [2, 3, 4, 5]
     
     best_clusters = 0
     best_clustered_routes = 0
+    best_cluster_ratio = 0  # Ratio of clustered routes to total routes
     
-    # Grid search for clustering parameters
+    # First pass: try to find parameters that produce ANY clusters
+    print("First pass: Testing various eps values to find initial clustering...")
     for eps in eps_values:
-        for samples in samples_values:
+        # Start with min_samples=2 for initial testing
+        test_params = best_params.copy()
+        test_params['cluster_eps'] = eps
+        test_params['cluster_min_samples'] = 2
+        
+        valid_trips, has_lines, n_clusters, n_clustered_routes = evaluate_parameters(df, test_params)
+        
+        if n_clusters > 0:
+            print(f"Found initial clustering with eps={eps}, min_samples=2")
+            print(f"  Clusters: {n_clusters}, Clustered routes: {n_clustered_routes}")
+            
+            # Save these as our starting point
+            best_clusters = n_clusters
+            best_clustered_routes = n_clustered_routes
+            best_params['cluster_eps'] = eps
+            best_params['cluster_min_samples'] = 2
+            
+            # Calculate ratio of clustered routes to total valid routes
+            if has_lines > 0:
+                best_cluster_ratio = n_clustered_routes / has_lines
+            
+            # We found a working value, break from first pass
+            break
+    
+    # If we didn't find any clustering, try with larger eps values
+    if best_clusters == 0:
+        print("No clustering found in first pass. Trying with larger eps values...")
+        larger_eps_values = [0.4, 0.5, 0.75, 1.0, 1.5, 2.0]
+        
+        for eps in larger_eps_values:
             test_params = best_params.copy()
             test_params['cluster_eps'] = eps
-            test_params['cluster_min_samples'] = samples
+            test_params['cluster_min_samples'] = 2
             
-            _, _, n_clusters, n_clustered_routes = evaluate_parameters(df, test_params)
+            valid_trips, has_lines, n_clusters, n_clustered_routes = evaluate_parameters(df, test_params)
             
-            # If we've found clusters, consider this a success
-            if n_clusters > best_clusters or (n_clusters == best_clusters and n_clustered_routes > best_clustered_routes):
+            if n_clusters > 0:
+                print(f"Found initial clustering with eps={eps}, min_samples=2")
+                print(f"  Clusters: {n_clusters}, Clustered routes: {n_clustered_routes}")
+                
+                # Save these as our starting point
                 best_clusters = n_clusters
                 best_clustered_routes = n_clustered_routes
                 best_params['cluster_eps'] = eps
-                best_params['cluster_min_samples'] = samples
+                best_params['cluster_min_samples'] = 2
                 
-                print(f"Found better parameters: eps={eps}, min_samples={samples}")
-                print(f"  Clusters: {n_clusters}, Clustered routes: {n_clustered_routes}")
+                # Calculate ratio
+                if has_lines > 0:
+                    best_cluster_ratio = n_clustered_routes / has_lines
                 
-                # If we have a good number of clusters, we can stop early
-                if n_clusters >= 5 and n_clustered_routes > 10:
-                    break
+                break
+    
+    # If we found initial clustering, refine around that value
+    if best_clusters > 0:
+        print("\nSecond pass: Refining parameters around initial successful value...")
+        
+        # Get the successful eps value
+        successful_eps = best_params['cluster_eps']
+        
+        # Create a range of values around the successful one (±50%)
+        min_eps = max(0.001, successful_eps * 0.5)
+        max_eps = successful_eps * 1.5
+        refined_eps_values = np.linspace(min_eps, max_eps, 8)
+        
+        # Grid search with refined values
+        for eps in refined_eps_values:
+            for samples in samples_values:
+                test_params = best_params.copy()
+                test_params['cluster_eps'] = eps
+                test_params['cluster_min_samples'] = samples
+                
+                valid_trips, has_lines, n_clusters, n_clustered_routes = evaluate_parameters(df, test_params)
+                
+                # Calculate cluster ratio
+                cluster_ratio = n_clustered_routes / has_lines if has_lines > 0 else 0
+                
+                # Better parameters found if:
+                # 1. More clusters OR
+                # 2. Same clusters but more routes clustered OR
+                # 3. Better cluster ratio (balance between too many small clusters and too few large ones)
+                if (n_clusters > best_clusters) or \
+                   (n_clusters == best_clusters and n_clustered_routes > best_clustered_routes) or \
+                   (n_clusters >= 2 and cluster_ratio > best_cluster_ratio and cluster_ratio <= 0.9):
+                    
+                    best_clusters = n_clusters
+                    best_clustered_routes = n_clustered_routes
+                    best_cluster_ratio = cluster_ratio
+                    best_params['cluster_eps'] = eps
+                    best_params['cluster_min_samples'] = samples
+                    
+                    print(f"Found better parameters: eps={eps:.4f}, min_samples={samples}")
+                    print(f"  Clusters: {n_clusters}, Clustered routes: {n_clustered_routes}")
+                    print(f"  Cluster ratio: {cluster_ratio:.2f}")
+                    
+                    # If we have a good number of clusters and good ratio, we can stop early
+                    if n_clusters >= 3 and 0.3 <= cluster_ratio <= 0.8:
+                        print("Found optimal parameters with good balance. Stopping search.")
+                        break
     
     # Finalize parameters
     print("\nFinal optimized parameters:")
