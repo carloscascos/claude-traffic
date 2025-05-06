@@ -2,12 +2,13 @@
 """
 Maritime Route Data Preparation Script
 
-This script fetches vessel position data from the database and prepares a CSV file 
-for maritime route analysis. It focuses on a specified time period and can extract
-data for specific vessel types.
+This script fetches vessel position data based on port calls, retrieving data for
+N days before and N days after each port call. It handles duplicate positions 
+that may occur when vessels call at the same port multiple times.
 
 Usage:
-    python prep.py --year 2024 --month 10 --output "data/vessel_routes_oct2024.csv"
+    python prep.py --port "Barcelona" --year 2024 --month 10 
+                  --window-days 7 --output "data/barcelona_oct2024.csv"
 """
 
 import os
@@ -16,6 +17,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import sys
+import asyncio
+import concurrent.futures
 from decimal import Decimal
 import mysql.connector
 from mysql.connector import Error
@@ -76,109 +79,34 @@ def execute_query(query, params=None):
             cursor.close()
             connection.close()
 
-def fetch_vessel_positions(year, month, vessel_type=None, limit=None):
+def find_port_calls(port_name, start_date, end_date):
     """
-    Fetch vessel positions from the database for a specific time period.
-    Join with imo table to get vessel information.
-    
-    Args:
-        year (int): Year of the data to fetch
-        month (int): Month of the data to fetch
-        vessel_type (str, optional): Type of vessel to filter by. Defaults to None.
-        limit (int, optional): Maximum number of records to fetch. Defaults to None.
-        
-    Returns:
-        pandas.DataFrame: DataFrame containing vessel positions
-    """
-    # Build the SQL query
-    query = """
-    SELECT 
-        v.imo as imo,
-        v.lat as latitude,
-        v.lng as longitude,
-        v.timestamp,
-        v.tloc,
-        v.speed,
-        i.GT as GT,
-        i.NAME as vessel_name,
-        i.Type as vessel_type,
-        i.FLAG as flag
-    FROM 
-        v_loc v
-    LEFT OUTER JOIN 
-        imo i ON v.imo = i.IMO
-    WHERE 
-        YEAR(v.timestamp) = %s 
-        AND MONTH(v.timestamp) = %s
-    """
-    
-    params = [year, month]
-    
-    # Add vessel type filter if provided
-    if vessel_type:
-        query += " AND i.Type = %s"
-        params.append(vessel_type)
-    
-    # Add limit if provided
-    if limit:
-        query += " ORDER BY v.timestamp LIMIT %s"
-        params.append(limit)
-    else:
-        query += " ORDER BY v.imo, v.timestamp"
-    
-    # Execute the query
-    print(f"Fetching vessel positions for {month}/{year}...")
-    print(f"SQL Query: {query}")
-    print(f"Parameters: {params}")
-    
-    try:
-        result = execute_query(query, tuple(params))
-        if not result:
-            print("No data found for the specified criteria.")
-            return pd.DataFrame()
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(result)
-        print(f"Retrieved {len(df)} records.")
-        
-        # Convert Decimal objects to float for GT column if it exists
-        if 'GT' in df.columns:
-            df['GT'] = df['GT'].apply(lambda x: float(x) if isinstance(x, Decimal) else x)
-        
-        # Convert speed to float (it might be stored as text in the database)
-        if 'speed' in df.columns:
-            df['speed'] = pd.to_numeric(df['speed'], errors='coerce')
-        
-        return df
-    except Exception as e:
-        print(f"Error executing query: {e}")
-        return pd.DataFrame()
-
-def fetch_port_based_vessel_positions(port_name, start_date, end_date, window_days=7, limit=None):
-    """
-    Fetch vessel positions for vessels that called at a specific port within a date range.
+    Find all vessels that called at a specific port within a date range.
     
     Args:
         port_name (str): Name of the port
         start_date (str): Start date in 'YYYY-MM-DD' format
         end_date (str): End date in 'YYYY-MM-DD' format
-        window_days (int, optional): Number of days before/after port call to include. Defaults to 7.
-        limit (int, optional): Maximum number of records to fetch. Defaults to None.
         
     Returns:
-        pandas.DataFrame: DataFrame containing vessel positions
+        list: List of dictionaries with port call information
     """
-    # First, find vessels that called at the port during the date range
     port_query = """
     SELECT 
         imo, 
         start, 
-        end
+        end,
+        portname,
+        country,
+        prev_port,
+        next_port
     FROM 
         escalas
     WHERE 
         portname = %s
         AND start BETWEEN %s AND %s
+    ORDER BY
+        imo, start
     """
     
     port_params = [port_name, start_date, end_date]
@@ -189,129 +117,244 @@ def fetch_port_based_vessel_positions(port_name, start_date, end_date, window_da
     
     if not port_calls:
         print(f"No vessels found calling at {port_name} during the specified period.")
-        return pd.DataFrame()
+        return []
     
     # Extract unique IMOs
-    imos = [call['imo'] for call in port_calls]
-    unique_imos = list(set(imos))
+    unique_imos = list(set(call['imo'] for call in port_calls))
     
     print(f"Found {len(port_calls)} port calls by {len(unique_imos)} unique vessels.")
     
-    # For each vessel, get positions around the port call time
-    all_positions = []
-    
-    for call in port_calls:
-        imo = call['imo']
-        call_start = call['start']
-        call_end = call['end']
-        
-        # Calculate the time window
-        window_start = (call_start - timedelta(days=window_days)).strftime('%Y-%m-%d')
-        window_end = (call_end + timedelta(days=window_days)).strftime('%Y-%m-%d')
-        
-        # Query for vessel positions
-        positions_query = """
-        SELECT 
-            v.imo as imo,
-            v.lat as latitude,
-            v.lng as longitude,
-            v.timestamp,
-            v.tloc,
-            v.speed,
-            i.GT as GT,
-            i.NAME as vessel_name,
-            i.Type as vessel_type,
-            i.FLAG as flag
-        FROM 
-            v_loc v
-        LEFT OUTER JOIN 
-            imo i ON v.imo = i.IMO
-        WHERE 
-            v.imo = %s
-            AND v.timestamp BETWEEN %s AND %s
-        ORDER BY 
-            v.timestamp
-        """
-        
-        positions_params = [imo, window_start, window_end]
-        
-        if limit:
-            positions_query += " LIMIT %s"
-            positions_params.append(limit)
-        
-        vessel_positions = execute_query(positions_query, tuple(positions_params))
-        
-        if vessel_positions:
-            all_positions.extend(vessel_positions)
-    
-    if not all_positions:
-        print("No vessel positions found for the port calls.")
-        return pd.DataFrame()
-    
-    # Convert to DataFrame
-    df = pd.DataFrame(all_positions)
-    print(f"Retrieved {len(df)} position records for vessels calling at {port_name}.")
-    
-    # Convert Decimal objects to float for GT column if it exists
-    if 'GT' in df.columns:
-        df['GT'] = df['GT'].apply(lambda x: float(x) if isinstance(x, Decimal) else x)
-    
-    # Convert speed to float (it might be stored as text in the database)
-    if 'speed' in df.columns:
-        df['speed'] = pd.to_numeric(df['speed'], errors='coerce')
-    
-    return df
+    return port_calls
 
-def fetch_full_year_data(port_name, year, window_days=7, max_vessels=None):
+async def fetch_vessel_positions_for_call(call, window_days, max_positions=None, semaphore=None):
     """
-    Fetch vessel positions for a full year in monthly batches.
+    Fetch vessel positions for a single port call with window days before and after.
+    
+    Args:
+        call (dict): Port call information
+        window_days (int): Number of days before/after port call to include
+        max_positions (int, optional): Maximum number of positions to fetch per call
+        semaphore (asyncio.Semaphore, optional): Semaphore for limiting concurrent queries
+        
+    Returns:
+        pandas.DataFrame: DataFrame with vessel positions for this call
+    """
+    imo = call['imo']
+    call_start = call['start']
+    call_end = call['end']
+    port_name = call['portname']
+    
+    # Calculate the time window
+    window_start = (call_start - timedelta(days=window_days)).strftime('%Y-%m-%d')
+    window_end = (call_end + timedelta(days=window_days)).strftime('%Y-%m-%d')
+    
+    # Query for vessel positions
+    positions_query = """
+    SELECT 
+        v.imo as imo,
+        v.lat as latitude,
+        v.lng as longitude,
+        v.timestamp,
+        v.tloc,
+        v.speed,
+        v.fleet as fleet,
+        i.GT as GT,
+        i.NAME as vessel_name,
+        i.Type as vessel_type,
+        i.FLAG as flag
+    FROM 
+        v_loc v
+    LEFT OUTER JOIN 
+        imo i ON v.imo = i.IMO
+    WHERE 
+        v.imo = %s
+        AND v.timestamp BETWEEN %s AND %s
+    ORDER BY 
+        v.timestamp
+    """
+    
+    positions_params = [imo, window_start, window_end]
+    
+    if max_positions:
+        positions_query += " LIMIT %s"
+        positions_params.append(max_positions)
+    
+    try:
+        # Use semaphore if provided to limit concurrent queries
+        if semaphore:
+            async with semaphore:
+                # Run the database query in a thread pool to avoid blocking the event loop
+                loop = asyncio.get_event_loop()
+                vessel_positions = await loop.run_in_executor(
+                    None, 
+                    lambda: execute_query(positions_query, tuple(positions_params))
+                )
+        else:
+            vessel_positions = execute_query(positions_query, tuple(positions_params))
+        
+        if not vessel_positions:
+            print(f"No positions found for vessel IMO {imo} around port call at {port_name}.")
+            return pd.DataFrame()
+        
+        # Add port call information to each position record
+        for position in vessel_positions:
+            position['port_call_start'] = call_start
+            position['port_call_end'] = call_end
+            position['port_name'] = port_name
+            position['call_country'] = call.get('country')
+            position['prev_port'] = call.get('prev_port')
+            position['next_port'] = call.get('next_port')
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(vessel_positions)
+        
+        # Convert Decimal objects to float for GT column if it exists
+        if 'GT' in df.columns:
+            df['GT'] = df['GT'].apply(lambda x: float(x) if isinstance(x, Decimal) else x)
+        
+        # Convert speed to float (it might be stored as text in the database)
+        if 'speed' in df.columns:
+            df['speed'] = pd.to_numeric(df['speed'], errors='coerce')
+        
+        return df
+    
+    except Exception as e:
+        print(f"Error fetching positions for vessel IMO {imo}: {e}")
+        return pd.DataFrame()
+
+async def process_port_calls(port_calls, window_days, max_positions=None, max_concurrency=5):
+    """
+    Process all port calls in parallel, collecting vessel positions for each.
+    
+    Args:
+        port_calls (list): List of port call dictionaries
+        window_days (int): Number of days before/after port call to include
+        max_positions (int, optional): Maximum number of positions to fetch per call
+        max_concurrency (int, optional): Maximum number of concurrent queries. Defaults to 5.
+        
+    Returns:
+        pandas.DataFrame: Combined DataFrame with all vessel positions
+    """
+    print(f"Processing {len(port_calls)} port calls with window of {window_days} days before/after...")
+    print(f"Maximum concurrency: {max_concurrency} vessels at a time")
+    
+    # Create a semaphore to limit concurrency
+    semaphore = asyncio.Semaphore(max_concurrency)
+    
+    # Create tasks for each port call
+    tasks = [
+        fetch_vessel_positions_for_call(call, window_days, max_positions, semaphore)
+        for call in port_calls
+    ]
+    
+    # Execute all tasks and gather results
+    all_results = await asyncio.gather(*tasks)
+    
+    # Combine all DataFrames
+    combined_df = pd.concat(all_results, ignore_index=True)
+    
+    # Remove duplicate records (same IMO and timestamp)
+    original_size = len(combined_df)
+    combined_df = combined_df.drop_duplicates(subset=['imo', 'timestamp'])
+    duplicates_removed = original_size - len(combined_df)
+    
+    print(f"Combined {len(all_results)} port calls into {len(combined_df)} position records.")
+    print(f"Removed {duplicates_removed} duplicate positions ({duplicates_removed/original_size*100:.1f}% of total).")
+    
+    return combined_df
+
+def process_data_for_month(port_name, year, month, window_days, max_positions=None, max_concurrency=5):
+    """
+    Process port calls for a specific month.
     
     Args:
         port_name (str): Name of the port
-        year (int): Year to fetch data for
-        window_days (int, optional): Number of days before/after port call to include. Defaults to 7.
-        max_vessels (int, optional): Maximum number of vessels to process. Defaults to None.
+        year (int): Year to process
+        month (int): Month to process
+        window_days (int): Number of days before/after port call to include
+        max_positions (int, optional): Maximum number of positions to fetch per call
+        max_concurrency (int, optional): Maximum number of concurrent queries
         
     Returns:
-        pandas.DataFrame: DataFrame containing vessel positions
+        pandas.DataFrame: DataFrame with vessel positions
     """
+    # Calculate start and end date for the month
+    start_date = f"{year}-{month:02d}-01"
+    
+    # Calculate end date (last day of month)
+    if month == 12:
+        end_date = f"{year}-12-31"
+    else:
+        end_date = f"{year}-{month+1:02d}-01"
+        # Convert to datetime, subtract 1 day, convert back to string
+        end_date = (pd.to_datetime(end_date) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+    
+    print(f"Processing port calls for {port_name} in {year}-{month:02d}...")
+    
+    # Find port calls for this month
+    port_calls = find_port_calls(port_name, start_date, end_date)
+    
+    if not port_calls:
+        print(f"No port calls found for {port_name} in {year}-{month:02d}.")
+        return pd.DataFrame()
+    
+    # Process port calls
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        combined_df = loop.run_until_complete(
+            process_port_calls(port_calls, window_days, max_positions, max_concurrency)
+        )
+    finally:
+        loop.close()
+    
+    return combined_df
+
+def process_full_year(port_name, year, window_days, max_positions=None, max_concurrency=5, max_vessels=None):
+    """
+    Process port calls for a full year, month by month.
+    
+    Args:
+        port_name (str): Name of the port
+        year (int): Year to process
+        window_days (int): Number of days before/after port call to include
+        max_positions (int, optional): Maximum number of positions to fetch per call
+        max_concurrency (int, optional): Maximum number of concurrent queries
+        max_vessels (int, optional): Maximum number of vessels to process
+        
+    Returns:
+        pandas.DataFrame: DataFrame with vessel positions
+    """
+    print(f"Processing full year {year} for port {port_name}...")
+    
     all_data = []
+    vessels_processed = set()
     
     # Process each month
     for month in range(1, 13):
-        start_date = f"{year}-{month:02d}-01"
+        print(f"Processing month {month}...")
         
-        # Calculate end date (last day of month)
-        if month == 12:
-            end_date = f"{year}-12-31"
-        else:
-            end_date = f"{year}-{month+1:02d}-01"
-            # Convert to datetime, subtract 1 day, convert back to string
-            end_date = (pd.to_datetime(end_date) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-        
-        print(f"Processing month {month}: {start_date} to {end_date}")
-        
-        # Get data for this month
-        month_data = fetch_port_based_vessel_positions(
-            port_name, 
-            start_date, 
-            end_date, 
-            window_days
+        month_data = process_data_for_month(
+            port_name, year, month, window_days, max_positions, max_concurrency
         )
         
         if not month_data.empty:
+            # Add to results
             all_data.append(month_data)
             
+            # Track vessels processed
+            vessels_processed.update(month_data['imo'].unique())
+            
             # Check if we've reached max vessels
-            if max_vessels and len(set(month_data['imo'])) >= max_vessels:
+            if max_vessels and len(vessels_processed) >= max_vessels:
                 print(f"Reached maximum vessel limit ({max_vessels}). Stopping data collection.")
                 break
     
     # Combine all months
     if all_data:
         combined_data = pd.concat(all_data, ignore_index=True)
-        # Remove duplicates (same IMO and tloc)
-        combined_data = combined_data.drop_duplicates(subset=['imo', 'tloc'])
+        # Final deduplication in case there's overlap between months
+        combined_data = combined_data.drop_duplicates(subset=['imo', 'timestamp'])
         return combined_data
     else:
         return pd.DataFrame()
@@ -466,18 +509,20 @@ def main():
     Main function to fetch and process vessel position data.
     """
     parser = argparse.ArgumentParser(description='Fetch and prepare vessel position data for route analysis.')
+    parser.add_argument('--port', type=str, required=True, help='Port name to filter by')
     parser.add_argument('--year', type=int, default=2024, help='Year of data to fetch')
-    parser.add_argument('--month', type=int, default=10, help='Month of data to fetch')
-    parser.add_argument('--port', type=str, help='Port name to filter by (if using port-based extraction)')
-    parser.add_argument('--vessel-type', type=str, help='Vessel type to filter by')
+    parser.add_argument('--month', type=int, help='Month of data to fetch (if processing a single month)')
     parser.add_argument('--window-days', type=int, default=7, 
-                        help='Number of days before/after port call to include (for port-based extraction)')
-    parser.add_argument('--start-date', type=str, help='Start date for port-based extraction (YYYY-MM-DD)')
-    parser.add_argument('--end-date', type=str, help='End date for port-based extraction (YYYY-MM-DD)')
+                        help='Number of days before/after port call to include')
+    parser.add_argument('--start-date', type=str, help='Custom start date for port calls (YYYY-MM-DD)')
+    parser.add_argument('--end-date', type=str, help='Custom end date for port calls (YYYY-MM-DD)')
     parser.add_argument('--full-year', action='store_true', help='Process a full year of data in monthly batches')
-    parser.add_argument('--max-vessels', type=int, help='Maximum number of vessels to process (for full-year extraction)')
-    parser.add_argument('--limit', type=int, help='Maximum number of records to fetch')
-    parser.add_argument('--output', type=str, default='data/vessel_positions.csv', help='Output CSV file path')
+    parser.add_argument('--max-positions', type=int, help='Maximum number of positions to fetch per call')
+    parser.add_argument('--max-vessels', type=int, help='Maximum number of vessels to process')
+    parser.add_argument('--max-concurrency', type=int, default=5, 
+                        help='Maximum number of concurrent vessel queries')
+    parser.add_argument('--output', type=str, required=True, help='Output CSV file path')
+    parser.add_argument('--debug', action='store_true', help='Enable debugging output')
     
     args = parser.parse_args()
     
@@ -487,22 +532,52 @@ def main():
         if getattr(args, arg) is not None:
             print(f"  {arg}: {getattr(args, arg)}")
     
-    # Fetch the data based on the extraction method
-    if args.full_year and args.port:
-        # Full year extraction for a specific port
-        df = fetch_full_year_data(args.port, args.year, args.window_days, args.max_vessels)
-    elif args.port and (args.start_date and args.end_date):
-        # Port-based extraction for a specific date range
-        df = fetch_port_based_vessel_positions(
+    # Get vessel positions based on the extraction method
+    if args.full_year:
+        # Process full year
+        df = process_full_year(
             args.port, 
-            args.start_date, 
-            args.end_date, 
-            args.window_days,
-            args.limit
+            args.year, 
+            args.window_days, 
+            args.max_positions,
+            args.max_concurrency,
+            args.max_vessels
         )
+    elif args.month:
+        # Process specific month
+        df = process_data_for_month(
+            args.port, 
+            args.year, 
+            args.month, 
+            args.window_days, 
+            args.max_positions,
+            args.max_concurrency
+        )
+    elif args.start_date and args.end_date:
+        # Process custom date range
+        port_calls = find_port_calls(args.port, args.start_date, args.end_date)
+        
+        if not port_calls:
+            print("No port calls found for the specified criteria. Exiting.")
+            return
+        
+        # Process port calls
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            df = loop.run_until_complete(
+                process_port_calls(
+                    port_calls, 
+                    args.window_days, 
+                    args.max_positions, 
+                    args.max_concurrency
+                )
+            )
+        finally:
+            loop.close()
     else:
-        # General extraction for a specific month
-        df = fetch_vessel_positions(args.year, args.month, args.vessel_type, args.limit)
+        print("Error: You must specify either --month, --full-year, or both --start-date and --end-date")
+        return
     
     if df.empty:
         print("No data to process. Exiting.")
@@ -519,7 +594,7 @@ def main():
     print(f"  Total positions: {len(processed_df)}")
     print(f"  Unique vessels: {processed_df['imo'].nunique()}")
     print(f"  Unique trips: {processed_df['unique_trip_id'].nunique()}")
-    if not processed_df['timestamp'].empty:
+    if not processed_df.empty and 'timestamp' in processed_df:
         print(f"  Date range: {processed_df['timestamp'].min()} to {processed_df['timestamp'].max()}")
 
 if __name__ == "__main__":
