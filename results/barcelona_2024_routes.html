@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_64fe90393d1871f66f47a54e1829041a {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>
+    
+    
+    <div style="position: fixed; 
+                bottom: 50px; left: 50px; width: 230px; height: 140px; 
+                border: 2px solid grey; z-index: 9999; font-size: 14px;
+                background-color: white; padding: 10px; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 5px;">
+            <strong>Cruise Vessel Traffic</strong>
+        </div>
+        <div style="margin-bottom: 5px;">
+            Line width is proportional to gross tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 2px; background-color: #1E88E5;"></span>
+            Lower Tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 6px; background-color: #1E88E5;"></span>
+            Medium Tonnage
+        </div>
+        <div>
+            <span style="display: inline-block; width: 50px; height: 12px; background-color: #1E88E5;"></span>
+            Higher Tonnage
+        </div>
+    </div>
+    
+    
+    <div style="position: fixed; 
+                top: 10px; left: 50%; transform: translateX(-50%); 
+                z-index: 9999; font-size: 18px; font-weight: bold;
+                background-color: white; padding: 10px; border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        Maritime Highway Map - Barcelona Routes
+    </div>
+    
+    
+        <style>
+        .leaflet-marker-icon:not(.marker-cluster) {
+            display: none !important;
+        }
+        </style>
+        
+    
+            <div class="folium-map" id="map_64fe90393d1871f66f47a54e1829041a" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_64fe90393d1871f66f47a54e1829041a = L.map(
+                "map_64fe90393d1871f66f47a54e1829041a",
+                {
+                    center: [39.80110906550059, 2.50141063637442],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_a3fdbf3f90ab28a6df5ee808d390a9db = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_a3fdbf3f90ab28a6df5ee808d390a9db.addTo(map_64fe90393d1871f66f47a54e1829041a);
+        
+    
+            var measure_control_1e8c0279bae839a1fa72142834607a8e = new L.Control.Measure(
+                {
+  "position": "topright",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_64fe90393d1871f66f47a54e1829041a.addControl(measure_control_1e8c0279bae839a1fa72142834607a8e);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_6f0c55e0b2abf80856f725de3b4a940a = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_d45bbf28e82cb46087a4d1d3cf5dcdf9 = L.polyline(
+                [[39.51596, 2.355782], [39.46387, 2.432817], [39.43979, 2.485303], [39.51044, 2.616323], [39.56248, 2.632482], [39.56241, 2.635427], [39.55838, 2.6334], [39.49449, 2.67166], [39.44304, 2.697705]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 19.557817147176944}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_8e16c7f619fc06a8f07733cf9c781b67 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f01b6d8decf0561f80f525e6eed4afff = $(`<div id="html_f01b6d8decf0561f80f525e6eed4afff" style="width: 100.0%; height: 100.0%;">         <h4>Route 0</h4>         <b>Trip Count:</b> 14<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 106,624 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 16.5 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_8e16c7f619fc06a8f07733cf9c781b67.setContent(html_f01b6d8decf0561f80f525e6eed4afff);
+            
+        
+
+        poly_line_d45bbf28e82cb46087a4d1d3cf5dcdf9.bindPopup(popup_8e16c7f619fc06a8f07733cf9c781b67)
+        ;
+
+        
+    
+    
+            poly_line_d45bbf28e82cb46087a4d1d3cf5dcdf9.bindTooltip(
+                `<div>
+                     Route 0: 14 trips, 106,624 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_fc53e423bd56df8001e7d6370c9f6176 = L.polyline(
+                [[39.82326, 4.313357], [39.89148, 4.271596], [39.8946, 4.260035], [39.89461, 4.260038], [39.8946, 4.26], [39.89461, 4.260016], [39.89459, 4.260018], [39.89458, 4.260032], [39.89462, 4.260023], [39.8946, 4.260013], [39.89459, 4.260004], [39.8946, 4.26004], [39.89462, 4.260052], [39.89462, 4.260046], [39.8946, 4.260022], [39.8946, 4.260023], [39.89459, 4.260008], [39.89462, 4.260028], [39.89461, 4.260035], [39.89458, 4.260025], [39.89459, 4.260005], [39.89459, 4.26001], [39.89462, 4.260038], [39.89462, 4.260026], [39.86488, 4.319482], [39.94954, 4.317393], [39.95894, 4.314927]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 19.42407622763776}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_5ec588730050571875aa02f502afc0df = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2b413012a9d89f18bf8e655478b3debc = $(`<div id="html_2b413012a9d89f18bf8e655478b3debc" style="width: 100.0%; height: 100.0%;">         <h4>Route 1</h4>         <b>Trip Count:</b> 13<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 99,008 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 13.4 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_5ec588730050571875aa02f502afc0df.setContent(html_2b413012a9d89f18bf8e655478b3debc);
+            
+        
+
+        poly_line_fc53e423bd56df8001e7d6370c9f6176.bindPopup(popup_5ec588730050571875aa02f502afc0df)
+        ;
+
+        
+    
+    
+            poly_line_fc53e423bd56df8001e7d6370c9f6176.bindTooltip(
+                `<div>
+                     Route 1: 13 trips, 99,008 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_06fe4e57df1bee7b0ee0bf1ca321f2c0 = L.polyline(
+                [[39.4673, 1.77377], [39.26117, 1.731427], [39.08843, 1.699372], [38.97477, 1.622423], [38.9144, 1.524832], [38.91174, 1.44368], [38.9138, 1.441078], [38.89998, 1.448418], [38.91441, 1.525125], [38.95095, 1.601022], [39.00623, 1.702528]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.738530349597399}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_20232220e659614bd51a376bf8cbff54 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ff7bf2cd935b9319df1f3e6d4f027580 = $(`<div id="html_ff7bf2cd935b9319df1f3e6d4f027580" style="width: 100.0%; height: 100.0%;">         <h4>Route 2</h4>         <b>Trip Count:</b> 3<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 22,848 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 19.0 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_20232220e659614bd51a376bf8cbff54.setContent(html_ff7bf2cd935b9319df1f3e6d4f027580);
+            
+        
+
+        poly_line_06fe4e57df1bee7b0ee0bf1ca321f2c0.bindPopup(popup_20232220e659614bd51a376bf8cbff54)
+        ;
+
+        
+    
+    
+            poly_line_06fe4e57df1bee7b0ee0bf1ca321f2c0.bindTooltip(
+                `<div>
+                     Route 2: 3 trips, 22,848 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_83cc8790c9a6a52427d9ca0e6b77b523 = L.polyline(
+                [[39.22923, 2.122413], [39.39964, 2.454083], [39.44471, 2.549045], [39.51177, 2.618425], [39.56201, 2.633108], [39.56238, 2.635398], [39.56239, 2.635402], [39.56239, 2.635413], [39.5624, 2.635412], [39.56242, 2.635423], [39.56241, 2.635438], [39.54413, 2.645007], [39.47333, 2.584617], [39.43682, 2.521853], [39.47607, 2.410703], [39.5581, 2.285682]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_668a35fbe1cdaa3424fcd1413912c371 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9d7f15f4050802b1e2843ad53cf3477b = $(`<div id="html_9d7f15f4050802b1e2843ad53cf3477b" style="width: 100.0%; height: 100.0%;">         <h4>Route 3</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 17.5 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_668a35fbe1cdaa3424fcd1413912c371.setContent(html_9d7f15f4050802b1e2843ad53cf3477b);
+            
+        
+
+        poly_line_83cc8790c9a6a52427d9ca0e6b77b523.bindPopup(popup_668a35fbe1cdaa3424fcd1413912c371)
+        ;
+
+        
+    
+    
+            poly_line_83cc8790c9a6a52427d9ca0e6b77b523.bindTooltip(
+                `<div>
+                     Route 3: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1a2a8d80010109bec4f776f2bca4d21c = L.polyline(
+                [[39.013, 1.719595], [38.96845, 1.632563], [38.93969, 1.57696], [38.90636, 1.509473], [38.90629, 1.445693], [38.91379, 1.441093], [38.9138, 1.441092], [38.91383, 1.44107], [38.9138, 1.441108], [38.91381, 1.441102], [38.9138, 1.441108], [38.91383, 1.44106], [38.91381, 1.4411], [38.91383, 1.441092], [38.9138, 1.441095], [38.91378, 1.441082], [38.9138, 1.441072], [38.91384, 1.441078], [38.91383, 1.441102], [38.91382, 1.441112], [38.91385, 1.441082], [38.91383, 1.441102], [38.91381, 1.441082], [38.9138, 1.441095], [38.91383, 1.441097], [38.91382, 1.441082], [38.88121, 1.447132], [38.85994, 1.457807], [38.86027, 1.460122], [38.85881, 1.460112], [38.85774, 1.459022], [38.85779, 1.45719], [38.85815, 1.456858], [38.85841, 1.456837], [38.85846, 1.45666], [38.85858, 1.456707], [38.85833, 1.456773], [38.85867, 1.456707], [38.85831, 1.456787], [38.85833, 1.456698], [38.85862, 1.456632], [38.85911, 1.456573], [38.85869, 1.456605], [38.85848, 1.45666], [38.85816, 1.456838], [38.87491, 1.489832], [38.90537, 1.53918], [38.9952, 1.64898], [39.01814, 1.655425]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_c9e4d404b98a38cdbcd03b6b548ec4b8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3e9a98006d918e85fbe2606d02670924 = $(`<div id="html_3e9a98006d918e85fbe2606d02670924" style="width: 100.0%; height: 100.0%;">         <h4>Route 4</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 24.5 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_c9e4d404b98a38cdbcd03b6b548ec4b8.setContent(html_3e9a98006d918e85fbe2606d02670924);
+            
+        
+
+        poly_line_1a2a8d80010109bec4f776f2bca4d21c.bindPopup(popup_c9e4d404b98a38cdbcd03b6b548ec4b8)
+        ;
+
+        
+    
+    
+            poly_line_1a2a8d80010109bec4f776f2bca4d21c.bindTooltip(
+                `<div>
+                     Route 4: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c3848e2437b405b060f18aaac766b9cc = L.polyline(
+                [[39.744, 4.198798], [39.77953, 4.275203], [39.83268, 4.317113], [39.89125, 4.270087], [39.89462, 4.26004], [39.89459, 4.260005], [39.89461, 4.260038], [39.87459, 4.301932], [39.92331, 4.327592], [40.00269, 4.3003]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.738530349597399}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_cecf85831450bcc7dc19d33d6b1f3420 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_41192d387c4c120639f23d4a3e18b1a2 = $(`<div id="html_41192d387c4c120639f23d4a3e18b1a2" style="width: 100.0%; height: 100.0%;">         <h4>Route 5</h4>         <b>Trip Count:</b> 3<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 22,848 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 14.3 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_cecf85831450bcc7dc19d33d6b1f3420.setContent(html_41192d387c4c120639f23d4a3e18b1a2);
+            
+        
+
+        poly_line_c3848e2437b405b060f18aaac766b9cc.bindPopup(popup_cecf85831450bcc7dc19d33d6b1f3420)
+        ;
+
+        
+    
+    
+            poly_line_c3848e2437b405b060f18aaac766b9cc.bindTooltip(
+                `<div>
+                     Route 5: 3 trips, 22,848 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_12ea38baa96799a5947bc3ba1a1a5344 = L.polyline(
+                [[40.94026, 2.841242], [41.02968, 2.704692], [41.10781, 2.579048], [41.18016, 2.455828], [41.23703, 2.375345], [41.29236, 2.289055], [41.34562, 2.199973], [41.37022, 2.176873], [41.37024, 2.176898], [41.3702, 2.17689], [41.37023, 2.17687], [41.3702, 2.176878], [41.37022, 2.176862], [41.37023, 2.176902], [41.37024, 2.176892], [41.37021, 2.176872], [41.37025, 2.176877], [41.37022, 2.176865], [41.37022, 2.176887], [41.37023, 2.176888], [41.37023, 2.1769], [41.37021, 2.176888], [41.37022, 2.176878], [41.37022, 2.176875], [41.37022, 2.176893], [41.37023, 2.17688], [41.37022, 2.176885], [41.36904, 2.178422], [41.30383, 2.223087], [41.21094, 2.222435], [41.11178, 2.209598], [41.0138, 2.18677], [40.90084, 2.19623]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_64e0b5473e9d499fceb9d61f6e9531f1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_baf632e4f4be6cc63dffdb30cafd0ca5 = $(`<div id="html_baf632e4f4be6cc63dffdb30cafd0ca5" style="width: 100.0%; height: 100.0%;">         <h4>Route 6</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 17.2 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_64e0b5473e9d499fceb9d61f6e9531f1.setContent(html_baf632e4f4be6cc63dffdb30cafd0ca5);
+            
+        
+
+        poly_line_12ea38baa96799a5947bc3ba1a1a5344.bindPopup(popup_64e0b5473e9d499fceb9d61f6e9531f1)
+        ;
+
+        
+    
+    
+            poly_line_12ea38baa96799a5947bc3ba1a1a5344.bindTooltip(
+                `<div>
+                     Route 6: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_99426ede84add3e74cf4e6083a3375f0 = L.polyline(
+                [[38.97961, 1.61558], [38.94943, 1.566957], [38.90277, 1.44549], [38.91382, 1.441122], [38.91383, 1.441122], [38.91385, 1.44108], [38.9138, 1.441097], [38.91211, 1.44221], [38.89542, 1.473353], [38.92746, 1.54528], [39.00971, 1.701842]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 20.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_97e2bbca0f04bc1c3bcb7e6f3a14b62d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3e418b1aedc0e590a37ad46e9d302b42 = $(`<div id="html_3e418b1aedc0e590a37ad46e9d302b42" style="width: 100.0%; height: 100.0%;">         <h4>Route 7</h4>         <b>Trip Count:</b> 18<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 137,088 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 19.2 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_97e2bbca0f04bc1c3bcb7e6f3a14b62d.setContent(html_3e418b1aedc0e590a37ad46e9d302b42);
+            
+        
+
+        poly_line_99426ede84add3e74cf4e6083a3375f0.bindPopup(popup_97e2bbca0f04bc1c3bcb7e6f3a14b62d)
+        ;
+
+        
+    
+    
+            poly_line_99426ede84add3e74cf4e6083a3375f0.bindTooltip(
+                `<div>
+                     Route 7: 18 trips, 137,088 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_07d67c6e41aae27b68b177f8893c4a12 = L.polyline(
+                [[40.4563, 2.25379], [40.2771, 2.25525], [39.54357, 2.317022], [39.48115, 2.406442], [39.44138, 2.510567], [39.49235, 2.596477], [39.55574, 2.641602], [39.56236, 2.635422], [39.5624, 2.635412], [39.56239, 2.63541], [39.5624, 2.63542], [39.56239, 2.63542], [39.56239, 2.635383], [39.56241, 2.635417], [39.56239, 2.635412], [39.56237, 2.63538], [39.55766, 2.63443], [39.45995, 2.68359], [39.40903, 2.706582]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_f69e58cb3387a293d6c0c49ebf17b8f5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a349160e1592611c17905858a734f1f4 = $(`<div id="html_a349160e1592611c17905858a734f1f4" style="width: 100.0%; height: 100.0%;">         <h4>Route 8</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 21.0 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_f69e58cb3387a293d6c0c49ebf17b8f5.setContent(html_a349160e1592611c17905858a734f1f4);
+            
+        
+
+        poly_line_07d67c6e41aae27b68b177f8893c4a12.bindPopup(popup_f69e58cb3387a293d6c0c49ebf17b8f5)
+        ;
+
+        
+    
+    
+            poly_line_07d67c6e41aae27b68b177f8893c4a12.bindTooltip(
+                `<div>
+                     Route 8: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_dbd0e8dc520d342bdb71b9b406a72b23 = L.polyline(
+                [[39.40214, 2.458327], [39.43821, 2.529212], [39.48553, 2.585352], [39.53904, 2.639032], [39.56239, 2.635447], [39.53895, 2.634673], [39.47132, 2.567338], [39.44196, 2.535655], [39.48969, 2.388488], [39.53658, 2.31415]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 18.934597902563798}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_34413680a7c55ad0d70c0848e1220ec6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b56dd0a6f79ad0920fdac312d88300c7 = $(`<div id="html_b56dd0a6f79ad0920fdac312d88300c7" style="width: 100.0%; height: 100.0%;">         <h4>Route 9</h4>         <b>Trip Count:</b> 10<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 76,160 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 26.4 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_34413680a7c55ad0d70c0848e1220ec6.setContent(html_b56dd0a6f79ad0920fdac312d88300c7);
+            
+        
+
+        poly_line_dbd0e8dc520d342bdb71b9b406a72b23.bindPopup(popup_34413680a7c55ad0d70c0848e1220ec6)
+        ;
+
+        
+    
+    
+            poly_line_dbd0e8dc520d342bdb71b9b406a72b23.bindTooltip(
+                `<div>
+                     Route 9: 10 trips, 76,160 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_41f317c5445b7e157d83e98f23da968e = L.polyline(
+                [[39.51795, 2.354007], [39.44694, 2.455413], [39.45642, 2.551118], [39.51837, 2.62434], [39.562, 2.633683], [39.56236, 2.635422], [39.56239, 2.635432], [39.56241, 2.635417], [39.54912, 2.647892], [39.49857, 2.600135], [39.45177, 2.54614], [39.42503, 2.501477], [39.39162, 2.439578]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.738530349597399}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_1ed989941f781c1c3dd681996ca94a5b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_237e0a2f220c68f797c8f8b176df134a = $(`<div id="html_237e0a2f220c68f797c8f8b176df134a" style="width: 100.0%; height: 100.0%;">         <h4>Route 10</h4>         <b>Trip Count:</b> 3<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 22,848 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 18.0 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_1ed989941f781c1c3dd681996ca94a5b.setContent(html_237e0a2f220c68f797c8f8b176df134a);
+            
+        
+
+        poly_line_41f317c5445b7e157d83e98f23da968e.bindPopup(popup_1ed989941f781c1c3dd681996ca94a5b)
+        ;
+
+        
+    
+    
+            poly_line_41f317c5445b7e157d83e98f23da968e.bindTooltip(
+                `<div>
+                     Route 10: 3 trips, 22,848 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_26e67ecd83c7f50a016bab119caf2cc1 = L.polyline(
+                [[38.91382, 1.44108], [38.89504, 1.463783], [38.91373, 1.515195]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.738530349597399}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_d3c3d2120749a1f2570bf3987c88e166 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_64ab482c9514a80111d58494096a15af = $(`<div id="html_64ab482c9514a80111d58494096a15af" style="width: 100.0%; height: 100.0%;">         <h4>Route 11</h4>         <b>Trip Count:</b> 3<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 22,848 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 20.2 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_d3c3d2120749a1f2570bf3987c88e166.setContent(html_64ab482c9514a80111d58494096a15af);
+            
+        
+
+        poly_line_26e67ecd83c7f50a016bab119caf2cc1.bindPopup(popup_d3c3d2120749a1f2570bf3987c88e166)
+        ;
+
+        
+    
+    
+            poly_line_26e67ecd83c7f50a016bab119caf2cc1.bindTooltip(
+                `<div>
+                     Route 11: 3 trips, 22,848 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_618a523532ee3c955acad320e69b514d = L.polyline(
+                [[39.0977, 1.87968], [39.1517, 1.96602], [39.39536, 2.438322], [39.43355, 2.520622], [39.47593, 2.575082], [39.54822, 2.642463], [39.5624, 2.635435], [39.56241, 2.635397], [39.56239, 2.635437], [39.54155, 2.640413], [39.4826, 2.590008], [39.43737, 2.526802], [39.45588, 2.444868], [39.54701, 2.301782]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 16.803844160139565}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_9180d39c739a9c6c3ef19cda6ca44c79 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8d59a1b8264eaeb56f9bdcf583f6dd69 = $(`<div id="html_8d59a1b8264eaeb56f9bdcf583f6dd69" style="width: 100.0%; height: 100.0%;">         <h4>Route 12</h4>         <b>Trip Count:</b> 4<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 30,464 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 36.6 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_9180d39c739a9c6c3ef19cda6ca44c79.setContent(html_8d59a1b8264eaeb56f9bdcf583f6dd69);
+            
+        
+
+        poly_line_618a523532ee3c955acad320e69b514d.bindPopup(popup_9180d39c739a9c6c3ef19cda6ca44c79)
+        ;
+
+        
+    
+    
+            poly_line_618a523532ee3c955acad320e69b514d.bindTooltip(
+                `<div>
+                     Route 12: 4 trips, 30,464 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_ef256a8fb78242c8ea4431316a2b5dd8 = L.polyline(
+                [[39.82096, 4.3148], [39.88997, 4.284111], [39.89459, 4.260035], [39.89459, 4.260026], [39.89462, 4.260033], [39.89462, 4.26004], [39.89163, 4.27751], [39.83772, 4.314953], [39.79741, 4.300433], [39.87228, 3.958517], [39.9363, 3.786357], [40.00686, 3.711138], [40.03951, 3.67904]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 17.869208418472525}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_6d544e3ad55fdfc4cafa7156c36a1d3d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1bf81ddb0ede3211117e997f8b638ae4 = $(`<div id="html_1bf81ddb0ede3211117e997f8b638ae4" style="width: 100.0%; height: 100.0%;">         <h4>Route 13</h4>         <b>Trip Count:</b> 6<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 45,696 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 15.6 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_6d544e3ad55fdfc4cafa7156c36a1d3d.setContent(html_1bf81ddb0ede3211117e997f8b638ae4);
+            
+        
+
+        poly_line_ef256a8fb78242c8ea4431316a2b5dd8.bindPopup(popup_6d544e3ad55fdfc4cafa7156c36a1d3d)
+        ;
+
+        
+    
+    
+            poly_line_ef256a8fb78242c8ea4431316a2b5dd8.bindTooltip(
+                `<div>
+                     Route 13: 6 trips, 45,696 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_d57f5dd62fbb5d83fc1433e9508a1868 = L.polyline(
+                [[40.98482, 2.619735], [41.05759, 2.538143], [41.1183, 2.4633], [41.1895, 2.396862], [41.25833, 2.32744], [41.32384, 2.252185], [41.37024, 2.176883], [41.32815, 2.219637], [41.23991, 2.204288], [41.13813, 2.17825], [41.04365, 2.174008], [40.93213, 2.134683]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 16.803844160139565}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_7d84192139659590b6831b751f66ece1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c8d6485e44e7b983ce21a0faabd4859a = $(`<div id="html_c8d6485e44e7b983ce21a0faabd4859a" style="width: 100.0%; height: 100.0%;">         <h4>Route 14</h4>         <b>Trip Count:</b> 4<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 30,464 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 15.9 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_7d84192139659590b6831b751f66ece1.setContent(html_c8d6485e44e7b983ce21a0faabd4859a);
+            
+        
+
+        poly_line_d57f5dd62fbb5d83fc1433e9508a1868.bindPopup(popup_7d84192139659590b6831b751f66ece1)
+        ;
+
+        
+    
+    
+            poly_line_d57f5dd62fbb5d83fc1433e9508a1868.bindTooltip(
+                `<div>
+                     Route 14: 4 trips, 30,464 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1f8d395261b7677e1e5b3ced9eaabd9f = L.polyline(
+                [[41.07044, 2.519008], [41.1977, 2.373295], [41.32158, 2.24154], [41.36556, 2.183643], [41.37023, 2.1769], [41.37023, 2.176848], [41.36419, 2.184463], [41.28875, 2.228622], [41.19207, 2.208823], [40.94989, 2.140503]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_de299c862dda45026e9806ca417b1856 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_15a48b15020e5ed2600cb72260007b97 = $(`<div id="html_15a48b15020e5ed2600cb72260007b97" style="width: 100.0%; height: 100.0%;">         <h4>Route 15</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 15.5 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_de299c862dda45026e9806ca417b1856.setContent(html_15a48b15020e5ed2600cb72260007b97);
+            
+        
+
+        poly_line_1f8d395261b7677e1e5b3ced9eaabd9f.bindPopup(popup_de299c862dda45026e9806ca417b1856)
+        ;
+
+        
+    
+    
+            poly_line_1f8d395261b7677e1e5b3ced9eaabd9f.bindTooltip(
+                `<div>
+                     Route 15: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_6b4d3ea650afc48ee33f9245838224df = L.polyline(
+                [[41.12055, 2.558838], [41.22801, 2.392018], [41.33181, 2.227183], [41.37023, 2.176875], [41.32654, 2.216768], [41.22275, 2.196433], [40.93144, 2.125245]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_987f34680cdeebceb7803a094ba16cde = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_be655c62b2b9d3128d7bb2c9644ad92e = $(`<div id="html_be655c62b2b9d3128d7bb2c9644ad92e" style="width: 100.0%; height: 100.0%;">         <h4>Route 16</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 15.2 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_987f34680cdeebceb7803a094ba16cde.setContent(html_be655c62b2b9d3128d7bb2c9644ad92e);
+            
+        
+
+        poly_line_6b4d3ea650afc48ee33f9245838224df.bindPopup(popup_987f34680cdeebceb7803a094ba16cde)
+        ;
+
+        
+    
+    
+            poly_line_6b4d3ea650afc48ee33f9245838224df.bindTooltip(
+                `<div>
+                     Route 16: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_e7d38653c6ef825d9b3a3843c2028076 = L.polyline(
+                [[39.42282, 2.505413], [39.45971, 2.5564], [39.50585, 2.607905], [39.56225, 2.632605], [39.56239, 2.635428], [39.55966, 2.632608], [39.50768, 2.603857], [39.44353, 2.535622], [39.45918, 2.440625], [39.49096, 2.393123]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 18.492419254223556}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_daf1242b9c996dcbe92c4c1c732ab44a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b33cdd8529c26a39475a2b00d14f75c7 = $(`<div id="html_b33cdd8529c26a39475a2b00d14f75c7" style="width: 100.0%; height: 100.0%;">         <h4>Route 17</h4>         <b>Trip Count:</b> 8<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 60,928 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 31.3 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_daf1242b9c996dcbe92c4c1c732ab44a.setContent(html_b33cdd8529c26a39475a2b00d14f75c7);
+            
+        
+
+        poly_line_e7d38653c6ef825d9b3a3843c2028076.bindPopup(popup_daf1242b9c996dcbe92c4c1c732ab44a)
+        ;
+
+        
+    
+    
+            poly_line_e7d38653c6ef825d9b3a3843c2028076.bindTooltip(
+                `<div>
+                     Route 17: 8 trips, 60,928 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c9d7ee2bb10837306252f2ca62632170 = L.polyline(
+                [[39.91813, 4.3259], [39.88196, 4.295685], [39.8946, 4.26002], [39.89459, 4.260038], [39.89462, 4.260033], [39.89459, 4.260022], [39.89463, 4.26007], [39.89461, 4.26002], [39.89459, 4.260023], [39.89459, 4.260007], [39.8946, 4.260018], [39.89462, 4.260058], [39.89461, 4.260023], [39.89461, 4.26003], [39.89462, 4.26003], [39.89459, 4.26002], [39.89459, 4.26004], [39.89461, 4.26003], [39.8946, 4.260008], [39.89457, 4.260016], [39.89461, 4.260035], [39.89059, 4.282055], [39.83517, 4.322989], [39.77671, 4.290707], [39.7515, 4.232052]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_6e367545ad1ca19b2117118a75fe6857 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7a0375ea47d9e3587b242cb7227a1e54 = $(`<div id="html_7a0375ea47d9e3587b242cb7227a1e54" style="width: 100.0%; height: 100.0%;">         <h4>Route 18</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 12.5 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_6e367545ad1ca19b2117118a75fe6857.setContent(html_7a0375ea47d9e3587b242cb7227a1e54);
+            
+        
+
+        poly_line_c9d7ee2bb10837306252f2ca62632170.bindPopup(popup_6e367545ad1ca19b2117118a75fe6857)
+        ;
+
+        
+    
+    
+            poly_line_c9d7ee2bb10837306252f2ca62632170.bindTooltip(
+                `<div>
+                     Route 18: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_dbfefbb2844d909e675900a35cb03e1e = L.polyline(
+                [[38.9604, 1.58645], [38.91383, 1.44106], [38.91169, 1.44387], [38.90981, 1.492835], [38.91285, 1.499708]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 17.427038178856392}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_35ad0d08a48dba73403cba341feb5c61 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9dbc1ba7f361f7b15173f1f8a7955512 = $(`<div id="html_9dbc1ba7f361f7b15173f1f8a7955512" style="width: 100.0%; height: 100.0%;">         <h4>Route 19</h4>         <b>Trip Count:</b> 5<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 38,080 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 13.8 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_35ad0d08a48dba73403cba341feb5c61.setContent(html_9dbc1ba7f361f7b15173f1f8a7955512);
+            
+        
+
+        poly_line_dbfefbb2844d909e675900a35cb03e1e.bindPopup(popup_35ad0d08a48dba73403cba341feb5c61)
+        ;
+
+        
+    
+    
+            poly_line_dbfefbb2844d909e675900a35cb03e1e.bindTooltip(
+                `<div>
+                     Route 19: 5 trips, 38,080 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_2fc0d0a66369516dff5ecdf9b1c1984a = L.polyline(
+                [[41.06841, 2.644433], [41.12106, 2.562563], [41.27478, 2.315948], [41.326, 2.239713], [41.36887, 2.17689], [41.36903, 2.176788], [41.36902, 2.176803], [41.36903, 2.176782], [41.36902, 2.176797], [41.36902, 2.176807], [41.36901, 2.176792], [41.369, 2.176845], [41.36903, 2.17681], [41.36903, 2.176778], [41.36903, 2.176797], [41.36902, 2.176788], [41.36902, 2.176787], [41.36903, 2.176798], [41.36903, 2.176792], [41.36901, 2.1768], [41.36902, 2.17678], [41.36902, 2.176778], [41.36901, 2.176795], [41.36903, 2.176797], [41.34142, 2.198763], [41.2548, 2.205675], [41.15929, 2.184357], [40.95078, 2.133907]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 15.738530349597399}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_e8478fde36063ee02cb9bb8da2cf53e6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_178c7d8314f5abae5edf8fd02ff2d815 = $(`<div id="html_178c7d8314f5abae5edf8fd02ff2d815" style="width: 100.0%; height: 100.0%;">         <h4>Route 20</h4>         <b>Trip Count:</b> 3<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 22,848 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 16.0 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_e8478fde36063ee02cb9bb8da2cf53e6.setContent(html_178c7d8314f5abae5edf8fd02ff2d815);
+            
+        
+
+        poly_line_2fc0d0a66369516dff5ecdf9b1c1984a.bindPopup(popup_e8478fde36063ee02cb9bb8da2cf53e6)
+        ;
+
+        
+    
+    
+            poly_line_2fc0d0a66369516dff5ecdf9b1c1984a.bindTooltip(
+                `<div>
+                     Route 20: 3 trips, 22,848 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_b9eb5f910e211eefe38ec02282b54905 = L.polyline(
+                [[38.96382, 1.59372], [38.91282, 1.441083], [38.91382, 1.44108], [38.9138, 1.441138], [38.91384, 1.441105], [38.91383, 1.441062], [38.91383, 1.441068], [38.91381, 1.441098], [38.91381, 1.441085], [38.91381, 1.441098], [38.90061, 1.450385], [38.91297, 1.501487], [38.9635, 1.60774]],
+                {"bubblingMouseEvents": true, "color": "#1E88E5", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1E88E5", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_6f0c55e0b2abf80856f725de3b4a940a);
+        
+    
+        var popup_6d85db294c444460d6b343cb2e6a40f3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3e3211347a51062eefe9afbccc7195f3 = $(`<div id="html_3e3211347a51062eefe9afbccc7195f3" style="width: 100.0%; height: 100.0%;">         <h4>Route 21</h4>         <b>Trip Count:</b> 2<br>         <b>Unique Vessels:</b> 1<br>         <b>Total Gross Tonnage:</b> 15,232 GT<br>         <b>Average Gross Tonnage:</b> 7,616 GT<br>         <b>Average Duration:</b> 16.2 hours<br>         <b>Vessels:</b> GUBAL TRADER         </div>`)[0];
+                popup_6d85db294c444460d6b343cb2e6a40f3.setContent(html_3e3211347a51062eefe9afbccc7195f3);
+            
+        
+
+        poly_line_b9eb5f910e211eefe38ec02282b54905.bindPopup(popup_6d85db294c444460d6b343cb2e6a40f3)
+        ;
+
+        
+    
+    
+            poly_line_b9eb5f910e211eefe38ec02282b54905.bindTooltip(
+                `<div>
+                     Route 21: 2 trips, 15,232 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_6f0c55e0b2abf80856f725de3b4a940a.addTo(map_64fe90393d1871f66f47a54e1829041a);
+        
+    
+            var layer_control_f0a8a3f6eb718bfe67570afc51d4a7ef_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_a3fdbf3f90ab28a6df5ee808d390a9db,
+                },
+                overlays :  {
+                    "Cruise Routes" : feature_group_6f0c55e0b2abf80856f725de3b4a940a,
+                },
+            };
+            let layer_control_f0a8a3f6eb718bfe67570afc51d4a7ef = L.control.layers(
+                layer_control_f0a8a3f6eb718bfe67570afc51d4a7ef_layers.base_layers,
+                layer_control_f0a8a3f6eb718bfe67570afc51d4a7ef_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_64fe90393d1871f66f47a54e1829041a);
+
+        
+</script>
+</html>

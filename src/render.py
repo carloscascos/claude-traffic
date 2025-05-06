@@ -25,7 +25,76 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import json
 import sys
+import time
+import logging
 
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('results/render_debug.log'),
+        logging.StreamHandler()
+    ]
+)
+
+# Timer decorator for performance tracking
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        func_name = func.__name__
+        logging.info(f"Starting {func_name}")
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        logging.info(f"Completed {func_name} in {execution_time:.2f} seconds")
+        return result
+    return wrapper
+import time
+import gc
+import logging
+import psutil
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("results/render_debug.log"),
+        logging.StreamHandler()
+    ]
+)
+
+# Function to track time and memory
+def track_performance(func):
+    """Decorator to track function execution time and memory usage"""
+    def wrapper(*args, **kwargs):
+        # Memory before
+        process = psutil.Process(os.getpid())
+        mem_before = process.memory_info().rss / 1024 / 1024  # MB
+        
+        # Time tracking
+        start_time = time.time()
+        logging.info(f"Starting {func.__name__}...")
+        
+        # Call the function
+        result = func(*args, **kwargs)
+        
+        # Calculate time
+        end_time = time.time()
+        elapsed = end_time - start_time
+        
+        # Memory after
+        mem_after = process.memory_info().rss / 1024 / 1024  # MB
+        mem_diff = mem_after - mem_before
+        
+        logging.info(f"Completed {func.__name__} in {elapsed:.2f} seconds")
+        logging.info(f"Memory: {mem_before:.1f} MB → {mem_after:.1f} MB (Δ {mem_diff:.1f} MB)")
+        
+        return result
+    return wrapper
+
+@track_performance
 def load_vessel_data(input_file):
     """
     Load vessel position data from CSV file.
@@ -36,15 +105,55 @@ def load_vessel_data(input_file):
     Returns:
         pandas.DataFrame: DataFrame with vessel positions
     """
-    print(f"Loading vessel data from {input_file}...")
+    logging.info(f"Loading vessel data from {input_file}...")
     
     if not os.path.exists(input_file):
-        print(f"Error: File {input_file} does not exist.")
+        logging.error(f"Error: File {input_file} does not exist.")
         return pd.DataFrame()
     
     try:
-        df = pd.read_csv(input_file)
-        print(f"Loaded {len(df)} records.")
+        # Get file size for reporting
+        file_size_mb = os.path.getsize(input_file) / (1024 * 1024)
+        logging.info(f"File size: {file_size_mb:.2f} MB")
+        
+        # Use chunks for large files to avoid memory issues
+        if file_size_mb > 50:
+            logging.info("Large file detected, using chunked reading")
+            chunks = []
+            for chunk in pd.read_csv(input_file, chunksize=10000):
+                chunks.append(chunk)
+            df = pd.concat(chunks, ignore_index=True)
+        else:
+            df = pd.read_csv(input_file)
+        
+        logging.info(f"Loaded {len(df)} records, {len(df.columns)} columns")
+        logging.info(f"Column names: {df.columns.tolist()}")
+        
+        # Check for expected columns
+        required_cols = ['imo', 'timestamp', 'unique_trip_id']
+        for col in required_cols:
+            if col not in df.columns:
+                logging.warning(f"Required column '{col}' not found in dataset")
+        
+        # Fix column names - look for fleet column with spaces
+        if '    ' in df.columns:
+            logging.info("Found column named '    ', renaming to 'fleet'")
+            df = df.rename(columns={'    ': 'fleet'})
+        
+        # Check vessel type columns
+        vessel_type_cols = []
+        if 'vessel_type' in df.columns:
+            vessel_type_cols.append('vessel_type')
+            vessel_types = df['vessel_type'].dropna().unique()
+            logging.info(f"Found {len(vessel_types)} unique vessel types: {vessel_types[:10]}")
+        
+        if 'fleet' in df.columns:
+            vessel_type_cols.append('fleet')
+            fleets = df['fleet'].dropna().unique()
+            logging.info(f"Found {len(fleets)} unique fleet values: {fleets}")
+        
+        if not vessel_type_cols:
+            logging.warning("No vessel type or fleet columns found in dataset")
         
         # Convert timestamp to datetime if it's not already
         if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
@@ -52,9 +161,10 @@ def load_vessel_data(input_file):
         
         return df
     except Exception as e:
-        print(f"Error loading data: {e}")
+        logging.error(f"Error loading data: {e}")
         return pd.DataFrame()
 
+@track_performance
 def filter_data(df, min_speed=1.0, min_trip_points=10):
     """
     Filter the data to remove stationary positions and short trips.
@@ -67,30 +177,47 @@ def filter_data(df, min_speed=1.0, min_trip_points=10):
     Returns:
         pandas.DataFrame: Filtered DataFrame
     """
-    print(f"Filtering data (min_speed={min_speed}, min_trip_points={min_trip_points})...")
+    logging.info(f"Filtering data (min_speed={min_speed}, min_trip_points={min_trip_points})...")
+    
+    # Initial statistics
+    initial_trips = df['unique_trip_id'].nunique()
+    initial_vessels = df['imo'].nunique()
+    logging.info(f"Input data: {len(df)} records, {initial_trips} trips, {initial_vessels} vessels")
     
     # Filter out positions where the vessel is not moving
     speed_column = 'calculated_speed' if 'calculated_speed' in df.columns else 'speed'
     
+    start_time = time.time()
     if speed_column in df.columns:
         moving_df = df[df[speed_column] >= min_speed].copy()
-        print(f"After speed filtering: {len(moving_df)} records")
+        logging.info(f"After speed filtering: {len(moving_df)} records (removed {len(df) - len(moving_df)} records)")
     else:
-        print("Warning: No speed column found. Cannot filter by speed.")
+        logging.warning("No speed column found. Cannot filter by speed.")
         moving_df = df.copy()
+    logging.info(f"Speed filtering took {time.time() - start_time:.2f} seconds")
     
     # Count points per trip
+    start_time = time.time()
     trip_counts = moving_df.groupby('unique_trip_id').size()
+    logging.info(f"Trip counts: min={trip_counts.min()}, max={trip_counts.max()}, mean={trip_counts.mean():.1f}")
     
     # Filter out trips with too few points
     valid_trips = trip_counts[trip_counts >= min_trip_points].index
     valid_df = moving_df[moving_df['unique_trip_id'].isin(valid_trips)].copy()
     
-    print(f"After trip length filtering: {len(valid_df)} records")
-    print(f"Valid trips: {len(valid_trips)}")
+    logging.info(f"After trip length filtering: {len(valid_df)} records (kept {len(valid_trips)} of {len(trip_counts)} trips)")
+    logging.info(f"Trip filtering took {time.time() - start_time:.2f} seconds")
+    
+    # Final statistics
+    final_vessels = valid_df['imo'].nunique()
+    logging.info(f"Final vessel count: {final_vessels} vessels")
+    
+    # Force garbage collection
+    gc.collect()
     
     return valid_df
 
+@track_performance
 def create_trip_lines(df):
     """
     Convert trip points to LineString objects.
@@ -101,30 +228,53 @@ def create_trip_lines(df):
     Returns:
         geopandas.GeoDataFrame: GeoDataFrame with trip lines
     """
-    print("Creating trip lines...")
+    logging.info("Creating trip lines...")
     
     # Check column names for latitude and longitude
     lat_col = 'latitude' if 'latitude' in df.columns else 'lat'
     lng_col = 'longitude' if 'longitude' in df.columns else 'lng'
     
     if lat_col not in df.columns or lng_col not in df.columns:
-        print(f"Error: Required columns not found. Available columns: {df.columns.tolist()}")
+        logging.error(f"Error: Required columns not found. Available columns: {df.columns.tolist()}")
         return gpd.GeoDataFrame()
     
     # Group by trip ID and create LineString for each trip
     trip_lines = []
     trip_data = []
     
-    # Print the column names for debugging
-    print(f"Available columns: {df.columns.tolist()}")
+    # Log the column names for debugging
+    logging.info(f"Available columns: {df.columns.tolist()}")
     
     # Check if fleet column exists
     has_fleet = 'fleet' in df.columns
-    print(f"Fleet column exists: {has_fleet}")
+    has_vessel_type = 'vessel_type' in df.columns
+    logging.info(f"Vessel type columns: fleet={has_fleet}, vessel_type={has_vessel_type}")
     
-    for trip_id, trip_points in df.groupby('unique_trip_id'):
-        # Sort points by timestamp
-        trip_points = trip_points.sort_values('timestamp')
+    # Get unique trips for progress tracking
+    unique_trips = df['unique_trip_id'].unique()
+    total_trips = len(unique_trips)
+    logging.info(f"Processing {total_trips} unique trips")
+    
+    # Track vessel types and fleets
+    vessel_types_found = set()
+    fleets_found = set()
+    
+    # Process each trip
+    progress_interval = max(1, total_trips // 10)  # Log every 10% progress
+    
+    start_time = time.time()
+    for i, trip_id in enumerate(unique_trips):
+        # Log progress
+        if i % progress_interval == 0 or i == total_trips - 1:
+            elapsed = time.time() - start_time
+            percentage = (i + 1) / total_trips * 100
+            rate = (i + 1) / max(0.1, elapsed)  # trips per second
+            remaining = (total_trips - i - 1) / max(0.1, rate)  # seconds remaining
+            logging.info(f"Progress: {i+1}/{total_trips} trips ({percentage:.1f}%), "
+                         f"Rate: {rate:.1f} trips/s, Remaining: {remaining:.1f}s")
+        
+        # Get trip points
+        trip_points = df[df['unique_trip_id'] == trip_id].sort_values('timestamp')
         
         # Create line coordinates
         line_coords = [(row[lng_col], row[lat_col]) for _, row in trip_points.iterrows()]
@@ -141,23 +291,25 @@ def create_trip_lines(df):
             vessel_type = None
             fleet = None
             
-            if 'vessel_type' in trip_points.columns:
+            if has_vessel_type:
                 vessel_type = trip_points['vessel_type'].iloc[0]
-                print(f"Found vessel_type: {vessel_type} for trip {trip_id}")
+                if vessel_type:
+                    vessel_types_found.add(vessel_type)
             
-            if 'fleet' in trip_points.columns:
+            if has_fleet:
                 fleet = trip_points['fleet'].iloc[0]
-                print(f"Found fleet: {fleet} for trip {trip_id}")
+                if fleet:
+                    fleets_found.add(fleet)
             
             # Get gross tonnage if available
             gross_tonnage = trip_points['GT'].iloc[0] if 'GT' in trip_points else 0
             
             # Get timestamps
-            start_time = trip_points['timestamp'].min()
-            end_time = trip_points['timestamp'].max()
+            start_time_trip = trip_points['timestamp'].min()
+            end_time_trip = trip_points['timestamp'].max()
             
             # Calculate duration
-            duration_hours = (end_time - start_time).total_seconds() / 3600
+            duration_hours = (end_time_trip - start_time_trip).total_seconds() / 3600
             
             trip_lines.append(line)
             trip_data.append({
@@ -167,24 +319,32 @@ def create_trip_lines(df):
                 'vessel_type': vessel_type,
                 'fleet': fleet,
                 'gross_tonnage': gross_tonnage,
-                'start_time': start_time,
-                'end_time': end_time,
+                'start_time': start_time_trip,
+                'end_time': end_time_trip,
                 'duration_hours': duration_hours,
                 'point_count': len(trip_points)
             })
     
     # Create GeoDataFrame with trip lines
     if not trip_lines:
-        print("No valid trip lines created.")
+        logging.error("No valid trip lines created.")
         return gpd.GeoDataFrame()
     
-    gdf = gpd.GeoDataFrame(trip_data, geometry=trip_lines, crs="EPSG:4326")
-    print(f"Created {len(gdf)} trip lines.")
+    # Log summary of vessel types and fleets found
+    logging.info(f"Found {len(vessel_types_found)} unique vessel types: {sorted(vessel_types_found)}")
+    logging.info(f"Found {len(fleets_found)} unique fleet values: {sorted(fleets_found)}")
     
-    # Check if fleet information exists
-    if 'fleet' in gdf.columns:
+    # Create GeoDataFrame and log memory usage
+    gdf = gpd.GeoDataFrame(trip_data, geometry=trip_lines, crs="EPSG:4326")
+    logging.info(f"Created {len(gdf)} trip lines. Memory usage: {gdf.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
+    
+    # Check if fleet information exists and log counts
+    if 'fleet' in gdf.columns and not gdf['fleet'].isna().all():
         fleet_counts = gdf['fleet'].value_counts()
-        print(f"Fleet counts in trip lines: {fleet_counts}")
+        logging.info(f"Fleet counts in trip lines: {fleet_counts.to_dict()}")
+    
+    # Force garbage collection
+    gc.collect()
     
     return gdf
 
@@ -1009,10 +1169,17 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
     m.save(output_file)
     print(f"Map saved to {output_file}")
 
+@track_performance
 def main():
     """
     Main function to generate a maritime highway map.
     """
+    logging.info("Starting maritime highway map generation")
+    logging.info(f"Python version: {sys.version}")
+    
+    # Start timing the entire process
+    overall_start_time = time.time()
+    
     parser = argparse.ArgumentParser(description='Generate a maritime highway map.')
     parser.add_argument('--input', type=str, help='Input CSV file with vessel positions')
     parser.add_argument('--output', type=str, default='results/maritime_routes_map.html', help='Output HTML file for the map')
@@ -1023,78 +1190,143 @@ def main():
     parser.add_argument('--by_vessel_type', action='store_true', help='Color routes by vessel type')
     parser.add_argument('--show_ports', action='store_true', help='Show ports in addition to routes (default: routes only)')
     parser.add_argument('--params', type=str, help='JSON file with parameters (overrides other arguments)')
+    parser.add_argument('--debug', action='store_true', help='Enable extra debugging output')
+    parser.add_argument('--limit', type=int, help='Limit the number of records to process (for testing)')
     
     args = parser.parse_args()
     
+    # Set debug level if requested
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug("Debug mode enabled")
+    
+    # Report system info
+    logging.info(f"CPU count: {os.cpu_count()}")
+    mem = psutil.virtual_memory()
+    logging.info(f"Memory: {mem.total / (1024**3):.1f} GB total, {mem.available / (1024**3):.1f} GB available")
+    
     # Load parameters from JSON file if specified
+    params_start_time = time.time()
     if args.params:
         try:
             import json
-            print(f"Loading parameters from {args.params}...")
+            logging.info(f"Loading parameters from {args.params}...")
             with open(args.params, 'r') as f:
                 params = json.load(f)
+            
+            # Log the loaded parameters
+            logging.info(f"Loaded parameters: {params}")
             
             # Override arguments with values from JSON
             for key, value in params.items():
                 if key in vars(args) and key != 'params':
                     setattr(args, key, value)
             
-            print("Parameters loaded successfully.")
+            logging.info("Parameters loaded successfully.")
                 
             # If input file is missing but in params, use it
             if not args.input and 'input_file' in params:
                 args.input = params['input_file']
-                print(f"Using input file from params: {args.input}")
+                logging.info(f"Using input file from params: {args.input}")
                 
         except Exception as e:
-            print(f"Error loading parameters from JSON: {e}")
-            print("Continuing with command-line arguments.")
+            logging.error(f"Error loading parameters from JSON: {e}")
+            logging.warning("Continuing with command-line arguments.")
+    logging.info(f"Parameter processing took {time.time() - params_start_time:.2f} seconds")
     
     # Check if input is specified
     if not args.input:
-        print("Error: No input file specified. Use --input or --params.")
+        logging.error("Error: No input file specified. Use --input or --params.")
         return
     
     # Print the parameters
-    print(f"Generating maritime highway map with parameters:")
+    logging.info(f"Generating maritime highway map with parameters:")
     for arg in vars(args):
         if arg != 'params':  # Skip printing the params filename
-            print(f"  {arg}: {getattr(args, arg)}")
+            logging.info(f"  {arg}: {getattr(args, arg)}")
     
     # Load the data
     df = load_vessel_data(args.input)
     
     if df.empty:
-        print("No data to process. Exiting.")
+        logging.error("No data to process. Exiting.")
         return
+    
+    # Apply limit if specified (for testing)
+    if args.limit and args.limit > 0 and len(df) > args.limit:
+        logging.info(f"Limiting to {args.limit} records for testing")
+        unique_trips = df['unique_trip_id'].unique()
+        if len(unique_trips) > args.limit:
+            selected_trips = unique_trips[:args.limit]
+            df = df[df['unique_trip_id'].isin(selected_trips)].copy()
+            logging.info(f"Limited to {len(df)} records from {len(selected_trips)} trips")
     
     # Filter the data
     filtered_df = filter_data(df, args.min_speed, args.min_trip_points)
     
     if filtered_df.empty:
-        print("No data left after filtering. Exiting.")
+        logging.error("No data left after filtering. Exiting.")
         return
+    
+    # Free memory
+    del df
+    gc.collect()
+    logging.info("Freed original dataframe from memory")
     
     # Create trip lines
     trip_lines_gdf = create_trip_lines(filtered_df)
     
     if trip_lines_gdf.empty:
-        print("No trip lines created. Exiting.")
+        logging.error("No trip lines created. Exiting.")
         return
     
+    # Free memory
+    del filtered_df
+    gc.collect()
+    logging.info("Freed filtered dataframe from memory")
+    
     # Simplify trip lines
+    logging.info("Starting trip line simplification...")
+    simplify_start_time = time.time()
     simplified_gdf = simplify_trip_lines(trip_lines_gdf)
+    logging.info(f"Trip line simplification completed in {time.time() - simplify_start_time:.2f} seconds")
+    
+    # Free memory
+    del trip_lines_gdf
+    gc.collect()
     
     # Cluster routes (optionally by vessel type)
+    logging.info("Starting route clustering...")
+    cluster_start_time = time.time()
     clustered_gdf = cluster_routes(simplified_gdf, args.cluster_eps, args.cluster_min_samples, args.by_vessel_type)
+    logging.info(f"Route clustering completed in {time.time() - cluster_start_time:.2f} seconds")
+    
+    # Free memory
+    del simplified_gdf
+    gc.collect()
     
     # Aggregate routes
+    logging.info("Starting route aggregation...")
+    aggregate_start_time = time.time()
     aggregated_gdf = aggregate_routes(clustered_gdf)
+    logging.info(f"Route aggregation completed in {time.time() - aggregate_start_time:.2f} seconds")
+    
+    # Free memory
+    del clustered_gdf
+    gc.collect()
     
     # Extract port locations
-    port_gdf = create_port_data(df)
+    logging.info("Starting port data extraction...")
+    port_start_time = time.time()
+    port_gdf = create_port_data(filtered_df) if 'filtered_df' in locals() else None
+    if port_gdf is not None:
+        logging.info(f"Port data extraction completed in {time.time() - port_start_time:.2f} seconds")
+    else:
+        logging.warning("Skipped port data extraction (filtered dataframe already freed)")
     
     # Generate the map
+    logging.info("Starting map generation...")
+    map_start_time = time.time()
     generate_map(
         aggregated_gdf, 
         port_gdf, 
@@ -1102,8 +1334,12 @@ def main():
         by_vessel_type=args.by_vessel_type,
         routes_only=not args.show_ports
     )
+    logging.info(f"Map generation completed in {time.time() - map_start_time:.2f} seconds")
     
-    print("Maritime highway map generation completed.")
+    # Report final statistics
+    overall_time = time.time() - overall_start_time
+    logging.info(f"Maritime highway map generation completed in {overall_time:.2f} seconds")
+    logging.info(f"Output map saved to: {args.output}")
 
 if __name__ == "__main__":
     main()

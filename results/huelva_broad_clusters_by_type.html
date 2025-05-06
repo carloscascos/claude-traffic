@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_1ace97c4cb8e431b8fce98b7bfcf2445 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css"/>
+</head>
+<body>
+    
+    
+    <div style="position: fixed; 
+                top: 10px; left: 50%; transform: translateX(-50%); 
+                z-index: 9999; font-size: 18px; font-weight: bold;
+                background-color: white; padding: 10px; border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        Maritime Routes by Vessel Type - Maritime Routes
+    </div>
+    
+    
+    <div style="position: fixed; 
+                bottom: 50px; left: 50px; 
+                border: 2px solid grey; z-index: 9999; font-size: 14px;
+                background-color: white; padding: 10px; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 5px;">
+            <strong>Vessel Types</strong>
+        </div>
+    
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #0066CC;"></span>
+            Container Ship
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #00CC66;"></span>
+            Bulk Carrier
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #CC0000;"></span>
+            Tanker
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #CC00CC;"></span>
+            Passenger/Cruise
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #CCCC00;"></span>
+            Cargo Ship
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #FF6600;"></span>
+            Ro-Ro
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #666666;"></span>
+            Other
+        </div>
+        
+        <div style="margin-bottom: 3px;">
+            <span style="display: inline-block; width: 20px; height: 10px; background-color: #999999;"></span>
+            Unknown
+        </div>
+        </div>
+    
+            <div class="folium-map" id="map_1ace97c4cb8e431b8fce98b7bfcf2445" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_1ace97c4cb8e431b8fce98b7bfcf2445 = L.map(
+                "map_1ace97c4cb8e431b8fce98b7bfcf2445",
+                {
+                    center: [32.609209013329924, -11.526994277338249],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 7,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5f6947a3a7796c34b28135059d74ba4e = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_5f6947a3a7796c34b28135059d74ba4e.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var measure_control_10dde1e2db9a5dbc8d5aa065ee6c7893 = new L.Control.Measure(
+                {
+  "position": "topright",
+  "primaryLengthUnit": "kilometers",
+  "secondaryLengthUnit": "miles",
+  "primaryAreaUnit": "sqmeters",
+  "secondaryAreaUnit": "acres",
+});
+            map_1ace97c4cb8e431b8fce98b7bfcf2445.addControl(measure_control_10dde1e2db9a5dbc8d5aa065ee6c7893);
+
+            // Workaround for using this plugin with Leaflet>=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var feature_group_beeaeed08b6c3336ec55a68a7b498b0b = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_beeaeed08b6c3336ec55a68a7b498b0b.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_df8db0479e8074c4f332172b760c171e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_df8db0479e8074c4f332172b760c171e.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_4bd1c593bfe994c0b737818f9628ed30 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_4bd1c593bfe994c0b737818f9628ed30.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_278a4a7bc85ea1e39d196c1b2169180e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var poly_line_2eebe46a73b4ee8653a37b855f1c2997 = L.polyline(
+                [[29.09328, -15.47849], [28.83875, -15.74312], [28.59215, -16.0123], [28.48536, -16.16211], [28.47305, -16.24538], [28.46231, -16.17696], [28.39955, -16.00304], [28.31673, -15.8108], [28.25546, -15.62404], [28.20756, -15.42821], [28.12338, -15.40826], [28.13864, -15.41419], [28.13727, -15.41117], [28.19474, -15.37502], [28.25686, -15.532], [28.35663, -15.87455], [28.41078, -16.04278], [28.46648, -16.20958], [28.47309, -16.24536], [28.47806, -16.23857], [28.52776, -16.09035], [28.6731, -15.9426], [28.94353, -15.67428], [29.18719, -15.40207], [29.41294, -15.16013]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_09dd1351ef334b6ee3afa43cdd84f727 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3f69e937764f716201a3f92f92549412 = $(`<div id="html_3f69e937764f716201a3f92f92549412" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 23.0 hours<br>             </div>`)[0];
+                popup_09dd1351ef334b6ee3afa43cdd84f727.setContent(html_3f69e937764f716201a3f92f92549412);
+            
+        
+
+        poly_line_2eebe46a73b4ee8653a37b855f1c2997.bindPopup(popup_09dd1351ef334b6ee3afa43cdd84f727)
+        ;
+
+        
+    
+    
+            poly_line_2eebe46a73b4ee8653a37b855f1c2997.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_f924428a0a3dc81c70a70b48a0064913 = L.polyline(
+                [[29.65471, -13.97464], [29.32132, -14.28733], [28.91748, -14.64541], [28.23853, -15.2677], [28.11683, -15.3925], [28.13867, -15.41418], [28.1145, -15.40266], [28.21446, -15.41249], [28.26784, -15.57845], [28.3719, -15.88331], [28.4564, -16.1993], [28.47863, -16.23837], [28.53218, -16.08519], [28.6563, -15.9496], [28.78654, -15.81492], [28.91941, -15.6807], [29.42756, -15.14675]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_a1ee9b19df9fadf24cc28efe77d99045 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_588771da7c45659502714cc63bd2a283 = $(`<div id="html_588771da7c45659502714cc63bd2a283" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 21.5 hours<br>             </div>`)[0];
+                popup_a1ee9b19df9fadf24cc28efe77d99045.setContent(html_588771da7c45659502714cc63bd2a283);
+            
+        
+
+        poly_line_f924428a0a3dc81c70a70b48a0064913.bindPopup(popup_a1ee9b19df9fadf24cc28efe77d99045)
+        ;
+
+        
+    
+    
+            poly_line_f924428a0a3dc81c70a70b48a0064913.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_7e554f6f87aa40201a3760a8fba924c3 = L.polyline(
+                [[30.2744, -14.2586], [30.2744, -14.2586], [30.2744, -14.2586], [30.2744, -14.2586], [30.2744, -14.2586]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_ff187bb9ced0b5c9cf3360c463acc131 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_49921735d38dc45b1a8adf06dc09352e = $(`<div id="html_49921735d38dc45b1a8adf06dc09352e" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 5.0 hours<br>             </div>`)[0];
+                popup_ff187bb9ced0b5c9cf3360c463acc131.setContent(html_49921735d38dc45b1a8adf06dc09352e);
+            
+        
+
+        poly_line_7e554f6f87aa40201a3760a8fba924c3.bindPopup(popup_ff187bb9ced0b5c9cf3360c463acc131)
+        ;
+
+        
+    
+    
+            poly_line_7e554f6f87aa40201a3760a8fba924c3.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_a37fbf6247600bc9e25fcb8ae14627f7 = L.polyline(
+                [[35.75918, -8.34826], [35.88346, -8.208736], [36.04681, -8.029667], [36.30117, -7.743255], [36.50227, -7.492128], [36.76096, -7.2125], [36.8842, -7.064405], [37.0037, -6.901682], [37.11873, -6.832897], [37.14989, -6.87811], [37.11491, -6.831395], [36.99751, -6.924531], [36.86753, -7.061873], [36.48267, -7.470857], [36.20918, -7.766842], [36.0853, -7.908235], [35.87983, -8.159788], [35.4571, -8.668777], [35.26002, -8.893708], [35.09179, -9.080965], [34.82207, -9.375605], [34.11735, -10.13205], [33.90123, -10.34887], [33.73165, -10.53008]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_9e3f5604bd4f657cc86303fb2fb540c5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8704316bd2f249c8ae209e2953211431 = $(`<div id="html_8704316bd2f249c8ae209e2953211431" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 27.5 hours<br>             </div>`)[0];
+                popup_9e3f5604bd4f657cc86303fb2fb540c5.setContent(html_8704316bd2f249c8ae209e2953211431);
+            
+        
+
+        poly_line_a37fbf6247600bc9e25fcb8ae14627f7.bindPopup(popup_9e3f5604bd4f657cc86303fb2fb540c5)
+        ;
+
+        
+    
+    
+            poly_line_a37fbf6247600bc9e25fcb8ae14627f7.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_76e7757e8e19ae0d5ce49b850febf613 = L.polyline(
+                [[30.70875, -13.79253], [30.30776, -14.18421], [29.92163, -14.59318], [29.78676, -14.73671], [29.66623, -14.86946], [29.27264, -15.28339], [29.14717, -15.43634], [28.88743, -15.72762], [28.75238, -15.85628], [28.61855, -15.99117], [28.49621, -16.14001], [28.45404, -16.18525], [28.34792, -16.04537], [28.26687, -15.89713], [28.23712, -15.71537], [28.21625, -15.53248], [28.15977, -15.37818], [28.13886, -15.41162], [28.18038, -15.37], [28.24946, -15.52107], [28.29833, -15.69391], [28.40903, -16.04202], [28.47115, -16.21621], [28.47591, -16.24337], [28.47757, -16.20957], [28.56821, -16.05395], [28.69091, -15.9187], [28.81559, -15.78284], [28.95775, -15.72441], [29.10059, -15.65491], [29.26858, -15.56532], [29.56509, -15.38291], [29.70189, -15.27217], [29.82655, -15.13979], [29.95717, -15.00661], [30.08314, -14.88135], [30.21053, -14.74841], [30.33143, -14.63957], [30.46349, -14.51162], [30.50039, -14.47267], [30.9817, -14.03975], [31.0268, -13.96821], [31.16137, -13.77333], [31.44293, -13.37513], [31.59122, -13.14748], [31.73436, -12.9119], [32.09888, -12.33951], [32.64707, -11.60396], [32.77159, -11.43964], [32.88097, -11.30274], [32.943, -11.22019], [33.24788, -10.87822]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_948026c762fbed6e9bc21f96e0e4362a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a50267e388452eef4d25de61b549224d = $(`<div id="html_a50267e388452eef4d25de61b549224d" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 46.0 hours<br>             </div>`)[0];
+                popup_948026c762fbed6e9bc21f96e0e4362a.setContent(html_a50267e388452eef4d25de61b549224d);
+            
+        
+
+        poly_line_76e7757e8e19ae0d5ce49b850febf613.bindPopup(popup_948026c762fbed6e9bc21f96e0e4362a)
+        ;
+
+        
+    
+    
+            poly_line_76e7757e8e19ae0d5ce49b850febf613.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_13afa945662623ed132ff3eeaffda635 = L.polyline(
+                [[35.98589, -7.818772], [36.18834, -7.600578], [36.36006, -7.458885], [36.50959, -7.351], [36.65851, -7.235842], [36.79042, -7.122885], [36.92942, -6.97787], [37.05516, -6.858925], [37.13933, -6.859613], [37.14988, -6.878125], [37.11179, -6.82912], [36.98609, -6.935742], [36.73506, -7.222213], [36.60705, -7.36027], [36.35962, -7.632838], [36.24687, -7.765934], [36.10751, -7.934692], [35.98471, -8.091494]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_b29d085af8120fd17fb0ddcef01af3d8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_0216d331cbf4ef7a042a3912856810b5 = $(`<div id="html_0216d331cbf4ef7a042a3912856810b5" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 16.5 hours<br>             </div>`)[0];
+                popup_b29d085af8120fd17fb0ddcef01af3d8.setContent(html_0216d331cbf4ef7a042a3912856810b5);
+            
+        
+
+        poly_line_13afa945662623ed132ff3eeaffda635.bindPopup(popup_b29d085af8120fd17fb0ddcef01af3d8)
+        ;
+
+        
+    
+    
+            poly_line_13afa945662623ed132ff3eeaffda635.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_d4b612fb2022aa48fd5c7c319cbf4e8f = L.polyline(
+                [[30.6038, -13.9262], [30.7537, -13.7668], [31.22685, -13.28235], [31.32609, -13.17443], [31.62901, -12.83515]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_f48e8e690217b995417c7f3b2224a347 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7a6df47b91e30938ab01dc4af33a3717 = $(`<div id="html_7a6df47b91e30938ab01dc4af33a3717" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 4.0 hours<br>             </div>`)[0];
+                popup_f48e8e690217b995417c7f3b2224a347.setContent(html_7a6df47b91e30938ab01dc4af33a3717);
+            
+        
+
+        poly_line_d4b612fb2022aa48fd5c7c319cbf4e8f.bindPopup(popup_f48e8e690217b995417c7f3b2224a347)
+        ;
+
+        
+    
+    
+            poly_line_d4b612fb2022aa48fd5c7c319cbf4e8f.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_d6d4c964edcd4a5a9b3dd5bba8895111 = L.polyline(
+                [[30.98416, -13.49227], [30.64619, -13.85419], [30.39114, -14.11326], [30.26625, -14.24958], [30.01751, -14.52992], [29.89353, -14.66345], [29.76809, -14.7972], [29.51623, -15.06401], [29.13123, -15.46339], [29.00129, -15.58366], [28.86361, -15.71104], [28.75327, -15.85464], [28.62724, -15.98615], [28.50413, -16.12243], [28.47371, -16.24433], [28.42411, -16.14142], [28.33177, -16.00574], [28.26718, -15.85992], [28.23975, -15.69749], [28.21682, -15.5383], [28.17589, -15.37728], [28.13671, -15.41017], [28.13875, -15.41301], [28.19496, -15.37727], [28.25543, -15.54632], [28.30845, -15.71432], [28.36751, -15.88094], [28.41251, -16.06198], [28.46929, -16.22298], [28.47594, -16.24331], [28.47363, -16.20774], [28.55998, -16.05827], [28.68034, -15.92745], [28.80102, -15.80023], [28.92264, -15.6697], [29.04827, -15.53614], [29.29533, -15.28488], [29.74736, -14.8161], [29.89035, -14.66671], [30.03128, -14.51705], [30.11201, -14.43132], [30.28958, -14.24194]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_d3e28698aeab5c907803bb815f9fa273 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_77e01802f057b554d745547a89780382 = $(`<div id="html_77e01802f057b554d745547a89780382" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 62.0 hours<br>             </div>`)[0];
+                popup_d3e28698aeab5c907803bb815f9fa273.setContent(html_77e01802f057b554d745547a89780382);
+            
+        
+
+        poly_line_d6d4c964edcd4a5a9b3dd5bba8895111.bindPopup(popup_d3e28698aeab5c907803bb815f9fa273)
+        ;
+
+        
+    
+    
+            poly_line_d6d4c964edcd4a5a9b3dd5bba8895111.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_525bada94bed260c35ec064a8b199725 = L.polyline(
+                [[31.11006, -13.37918], [31.4004, -13.05803], [31.58854, -12.84529]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_7fa4bfe5f4b0d6c62a292463198618ef = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9b3add06c23a264ae741fafcf1c6ae4b = $(`<div id="html_9b3add06c23a264ae741fafcf1c6ae4b" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 2.5 hours<br>             </div>`)[0];
+                popup_7fa4bfe5f4b0d6c62a292463198618ef.setContent(html_9b3add06c23a264ae741fafcf1c6ae4b);
+            
+        
+
+        poly_line_525bada94bed260c35ec064a8b199725.bindPopup(popup_7fa4bfe5f4b0d6c62a292463198618ef)
+        ;
+
+        
+    
+    
+            poly_line_525bada94bed260c35ec064a8b199725.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_f352286383242f936d3a21073815db8b = L.polyline(
+                [[35.47401, -8.61137], [36.00449, -8.05569], [36.26186, -7.775572], [36.51259, -7.483528], [36.63862, -7.334277], [36.76366, -7.180822], [36.8754, -7.029288], [37.00989, -6.893865], [37.12461, -6.83581], [37.14991, -6.878137], [37.1172, -6.83265], [36.99763, -6.917138], [36.86283, -7.050207], [36.72944, -7.182102], [36.60391, -7.315757], [36.47124, -7.447474], [36.42223, -7.483314], [36.05677, -7.805207], [35.8751, -8.0036]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_0f2b52db93826dba65617036571a9840 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b03a19042786ba18e907070b43a3fc1c = $(`<div id="html_b03a19042786ba18e907070b43a3fc1c" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 58.5 hours<br>             </div>`)[0];
+                popup_0f2b52db93826dba65617036571a9840.setContent(html_b03a19042786ba18e907070b43a3fc1c);
+            
+        
+
+        poly_line_f352286383242f936d3a21073815db8b.bindPopup(popup_0f2b52db93826dba65617036571a9840)
+        ;
+
+        
+    
+    
+            poly_line_f352286383242f936d3a21073815db8b.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_e85b7c97a64a67b8e74f7cc0f678e0cf = L.polyline(
+                [[29.52649, -14.09126], [29.05572, -14.5268], [28.64576, -14.89645], [28.51283, -15.0202], [28.23946, -15.2667], [28.11681, -15.3942], [28.13866, -15.41418], [28.13687, -15.38038], [28.244, -15.50149], [28.30419, -15.67655], [28.40133, -16.03182], [28.47592, -16.24333], [28.48119, -16.2345], [28.54375, -16.07687], [28.68767, -15.97701], [29.13557, -15.69482], [29.65435, -15.35807], [29.90241, -15.19487]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_7a2877159f4c1106a44119e54690c33b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_999af89273c8a6d71a267ae9d3dd364e = $(`<div id="html_999af89273c8a6d71a267ae9d3dd364e" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 22.0 hours<br>             </div>`)[0];
+                popup_7a2877159f4c1106a44119e54690c33b.setContent(html_999af89273c8a6d71a267ae9d3dd364e);
+            
+        
+
+        poly_line_e85b7c97a64a67b8e74f7cc0f678e0cf.bindPopup(popup_7a2877159f4c1106a44119e54690c33b)
+        ;
+
+        
+    
+    
+            poly_line_e85b7c97a64a67b8e74f7cc0f678e0cf.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_3df6b8ec8e961bc9f8d4a78064cc0dad = L.polyline(
+                [[30.552, -14.7707], [31.19417, -14.24374], [31.27657, -14.11389]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_93affa1ef9d3c5006ad56a7e23dd4b7c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5ff10d5981b30ca94b2be803d412c517 = $(`<div id="html_5ff10d5981b30ca94b2be803d412c517" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 1.0 hours<br>             </div>`)[0];
+                popup_93affa1ef9d3c5006ad56a7e23dd4b7c.setContent(html_5ff10d5981b30ca94b2be803d412c517);
+            
+        
+
+        poly_line_3df6b8ec8e961bc9f8d4a78064cc0dad.bindPopup(popup_93affa1ef9d3c5006ad56a7e23dd4b7c)
+        ;
+
+        
+    
+    
+            poly_line_3df6b8ec8e961bc9f8d4a78064cc0dad.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c855fe9a3fdf18f4406ee4edae80f9ac = L.polyline(
+                [[34.23766, -9.865385], [34.35544, -9.708518], [34.9197, -8.931718]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_17deff8c5b1558eb8e385819c33853a0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f5471a22f49a2e2ca7723a5adfbcb211 = $(`<div id="html_f5471a22f49a2e2ca7723a5adfbcb211" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 3.0 hours<br>             </div>`)[0];
+                popup_17deff8c5b1558eb8e385819c33853a0.setContent(html_f5471a22f49a2e2ca7723a5adfbcb211);
+            
+        
+
+        poly_line_c855fe9a3fdf18f4406ee4edae80f9ac.bindPopup(popup_17deff8c5b1558eb8e385819c33853a0)
+        ;
+
+        
+    
+    
+            poly_line_c855fe9a3fdf18f4406ee4edae80f9ac.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_29eaf600bf9ed4299b91030dee9de47e = L.polyline(
+                [[36.09746, -7.729908], [36.42266, -7.450907], [36.83123, -7.103456], [36.94845, -6.985708], [37.05819, -6.844745], [37.14442, -6.870752], [37.14027, -6.862545], [37.02167, -6.888652], [36.72504, -7.062718], [36.18774, -7.394453], [35.89186, -7.562923], [35.6301, -7.718328]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_2f5e9e4de083e76357c51012e9391a00 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_0327f39d908fd6e9b94e8cb983d93c67 = $(`<div id="html_0327f39d908fd6e9b94e8cb983d93c67" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 18.0 hours<br>             </div>`)[0];
+                popup_2f5e9e4de083e76357c51012e9391a00.setContent(html_0327f39d908fd6e9b94e8cb983d93c67);
+            
+        
+
+        poly_line_29eaf600bf9ed4299b91030dee9de47e.bindPopup(popup_2f5e9e4de083e76357c51012e9391a00)
+        ;
+
+        
+    
+    
+            poly_line_29eaf600bf9ed4299b91030dee9de47e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_0a5218480acc6ffe09f618d198958f4a = L.polyline(
+                [[33.45188, -9.341138], [33.35022, -9.433555], [32.79067, -9.933481], [32.53802, -10.15757], [32.15475, -10.4907], [32.02782, -10.60539], [31.76081, -10.84197], [31.62344, -10.98243]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_ca48cc686e7c6aca569d2c967743d036 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cc32233660635cdf892941a321fdce8f = $(`<div id="html_cc32233660635cdf892941a321fdce8f" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 7.5 hours<br>             </div>`)[0];
+                popup_ca48cc686e7c6aca569d2c967743d036.setContent(html_cc32233660635cdf892941a321fdce8f);
+            
+        
+
+        poly_line_0a5218480acc6ffe09f618d198958f4a.bindPopup(popup_ca48cc686e7c6aca569d2c967743d036)
+        ;
+
+        
+    
+    
+            poly_line_0a5218480acc6ffe09f618d198958f4a.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_52193c35a24d9ba7c44f60d3b7d29b07 = L.polyline(
+                [[33.29323, -11.03422], [33.40472, -10.91371], [33.56067, -10.75499], [33.75755, -10.53652]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_a8f9843ce370485c5e095bb8a4397bd0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_611f02cf2dffcc4d3e97dd1b0b4fb05c = $(`<div id="html_611f02cf2dffcc4d3e97dd1b0b4fb05c" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 2.0 hours<br>             </div>`)[0];
+                popup_a8f9843ce370485c5e095bb8a4397bd0.setContent(html_611f02cf2dffcc4d3e97dd1b0b4fb05c);
+            
+        
+
+        poly_line_52193c35a24d9ba7c44f60d3b7d29b07.bindPopup(popup_a8f9843ce370485c5e095bb8a4397bd0)
+        ;
+
+        
+    
+    
+            poly_line_52193c35a24d9ba7c44f60d3b7d29b07.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_b73dc5dfd3bd32720838c9d01ed50d90 = L.polyline(
+                [[29.10131, -14.99429], [29.01346, -15.16787], [28.93979, -15.32714], [28.76628, -15.6831], [28.67952, -15.85143], [28.58928, -16.01186], [28.48216, -16.16917], [28.4714, -16.20595], [28.35348, -16.05402], [28.26711, -15.88888], [28.2139, -15.49271], [28.13998, -15.37533], [28.11535, -15.40502], [28.21933, -15.45196], [28.2718, -15.62973], [28.38211, -15.98664], [28.44312, -16.1691], [28.47287, -16.18983], [28.57211, -16.04326], [28.8177, -15.80166], [29.0621, -15.55527], [29.19884, -15.40606]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_0b2e974fce155d6c5a4bf40c3eb5bd47 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_780bfde2b11293cc6a593e2ae7077937 = $(`<div id="html_780bfde2b11293cc6a593e2ae7077937" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 22.5 hours<br>             </div>`)[0];
+                popup_0b2e974fce155d6c5a4bf40c3eb5bd47.setContent(html_780bfde2b11293cc6a593e2ae7077937);
+            
+        
+
+        poly_line_b73dc5dfd3bd32720838c9d01ed50d90.bindPopup(popup_0b2e974fce155d6c5a4bf40c3eb5bd47)
+        ;
+
+        
+    
+    
+            poly_line_b73dc5dfd3bd32720838c9d01ed50d90.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_3f52d46a8a7c56a99a77a1e6fb701c1b = L.polyline(
+                [[35.34479, -8.80272], [35.64688, -8.458445], [35.71697, -8.375631], [36.04447, -8.034226], [36.28904, -7.725747], [36.41545, -7.570293], [36.51375, -7.436388], [36.64913, -7.294313], [36.78676, -7.155717], [37.04747, -6.857737], [37.14305, -6.867655], [37.14963, -6.878994], [37.06908, -6.843415], [36.94308, -6.985933], [36.45575, -7.542928], [36.33163, -7.669608], [36.2026, -7.801325], [36.08597, -7.941527], [35.9899, -8.068352], [35.8679, -8.199375]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_fae917d40132724f4cc4d0d8623bf370 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_db68534124fed1fcc363dafaa67110dd = $(`<div id="html_db68534124fed1fcc363dafaa67110dd" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 18.0 hours<br>             </div>`)[0];
+                popup_fae917d40132724f4cc4d0d8623bf370.setContent(html_db68534124fed1fcc363dafaa67110dd);
+            
+        
+
+        poly_line_3f52d46a8a7c56a99a77a1e6fb701c1b.bindPopup(popup_fae917d40132724f4cc4d0d8623bf370)
+        ;
+
+        
+    
+    
+            poly_line_3f52d46a8a7c56a99a77a1e6fb701c1b.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c51683fd3f3ef47a6c2ce3f781a2f952 = L.polyline(
+                [[33.3197, -10.15264], [33.03175, -10.35653], [32.96067, -10.39864], [32.82795, -10.45551], [32.45984, -10.77672], [32.24651, -11.07594], [31.9313, -11.52932], [31.81771, -11.67468], [31.71449, -11.82617], [31.62178, -11.98605], [31.52386, -12.14298], [31.42315, -12.29965], [31.31747, -12.45214], [31.21576, -12.60809], [30.80945, -13.24105], [30.70946, -13.38874], [30.26553, -13.96606], [30.02992, -14.26027], [29.79673, -14.54446], [29.68601, -14.69209], [29.56858, -14.83774], [29.46583, -14.97433], [29.33217, -15.11705], [29.22025, -15.24084], [28.98223, -15.51912], [28.86825, -15.65662], [28.74929, -15.80489], [28.64077, -15.94659], [28.52552, -16.08528], [28.48077, -16.22823], [28.47304, -16.24537], [28.46809, -16.20495], [28.28146, -15.90323], [28.23745, -15.73456], [28.19495, -15.40233], [28.12401, -15.40854], [28.13864, -15.41419], [28.137529, -15.411306], [28.19787, -15.385468], [28.263559, -15.558125], [28.431694, -16.093212], [28.480261, -16.234615], [28.476, -16.243315], [28.479362, -16.226791], [28.554594, -16.076225], [28.708153, -16.074955], [29.01502, -15.968805], [29.165253, -15.910628], [29.320526, -15.846046], [30.069447, -15.522942], [30.368473, -15.404255], [30.838131, -15.214388], [31.420313, -14.982765], [31.638567, -14.898335], [32.023041, -14.745212], [32.645927, -14.486965], [32.799622, -14.4218], [32.966114, -14.354753]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_7b0b2643fdc1cc02af98f3aed12e79c9 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a655c9d83b83ad0a03e329d73561a4c5 = $(`<div id="html_a655c9d83b83ad0a03e329d73561a4c5" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 80.0 hours<br>             </div>`)[0];
+                popup_7b0b2643fdc1cc02af98f3aed12e79c9.setContent(html_a655c9d83b83ad0a03e329d73561a4c5);
+            
+        
+
+        poly_line_c51683fd3f3ef47a6c2ce3f781a2f952.bindPopup(popup_7b0b2643fdc1cc02af98f3aed12e79c9)
+        ;
+
+        
+    
+    
+            poly_line_c51683fd3f3ef47a6c2ce3f781a2f952.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_6f9a297b9d23a944ea0d6145ed155a34 = L.polyline(
+                [[34.744831, -10.106755], [34.788059, -9.9414577], [34.893288, -9.508008], [34.940632, -9.3481932]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_05cb9c1dfb56bfe8b2a7eb51bb4354ec = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_fcbbbf92f8d8c95501d655eff9953e73 = $(`<div id="html_fcbbbf92f8d8c95501d655eff9953e73" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 2.0 hours<br>             </div>`)[0];
+                popup_05cb9c1dfb56bfe8b2a7eb51bb4354ec.setContent(html_fcbbbf92f8d8c95501d655eff9953e73);
+            
+        
+
+        poly_line_6f9a297b9d23a944ea0d6145ed155a34.bindPopup(popup_05cb9c1dfb56bfe8b2a7eb51bb4354ec)
+        ;
+
+        
+    
+    
+            poly_line_6f9a297b9d23a944ea0d6145ed155a34.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_2aa70c3db50f74a970013755f146bd6a = L.polyline(
+                [[35.1663, -8.28859], [35.1663, -8.28859], [35.1663, -8.28859]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_46bc172699d1a0c508bed3a7e1dcaf14 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1d2e755932c46b0fb35bd4bf2a0945b0 = $(`<div id="html_1d2e755932c46b0fb35bd4bf2a0945b0" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 1.0 hours<br>             </div>`)[0];
+                popup_46bc172699d1a0c508bed3a7e1dcaf14.setContent(html_1d2e755932c46b0fb35bd4bf2a0945b0);
+            
+        
+
+        poly_line_2aa70c3db50f74a970013755f146bd6a.bindPopup(popup_46bc172699d1a0c508bed3a7e1dcaf14)
+        ;
+
+        
+    
+    
+            poly_line_2aa70c3db50f74a970013755f146bd6a.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_cc59ab8f8a647d5918f6fb1970a3185e = L.polyline(
+                [[36.018009, -6.9029279], [36.173355, -6.7903552], [36.314911, -6.7071948], [36.46872, -6.721076], [36.61647, -6.792918], [36.76709, -6.856051], [36.92885, -6.86009], [37.07281, -6.828678], [37.14929, -6.880102], [37.14733, -6.87706], [37.08075, -6.839575], [36.94578, -6.966648], [36.81311, -7.100224], [36.68118, -7.23715], [36.54369, -7.36551], [36.44726, -7.461973], [36.32448, -7.59833], [35.9239, -8.019682], [35.87154, -8.073098]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_5ff445513d011340fe7630d1a525dcb9 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cd7bed84c1c72336a8594b02341f462c = $(`<div id="html_cd7bed84c1c72336a8594b02341f462c" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 44.5 hours<br>             </div>`)[0];
+                popup_5ff445513d011340fe7630d1a525dcb9.setContent(html_cd7bed84c1c72336a8594b02341f462c);
+            
+        
+
+        poly_line_cc59ab8f8a647d5918f6fb1970a3185e.bindPopup(popup_5ff445513d011340fe7630d1a525dcb9)
+        ;
+
+        
+    
+    
+            poly_line_cc59ab8f8a647d5918f6fb1970a3185e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_762f92efefb2c2487f05233a47d3b91e = L.polyline(
+                [[35.07891, -8.830765], [34.58258, -9.29613], [34.27537, -9.57014], [34.13736, -9.696942], [33.71435, -10.09982], [33.6002, -10.22677], [33.33788, -10.49949], [33.22596, -10.60866], [32.54371, -11.26119], [32.40716, -11.38746], [32.27052, -11.51099], [32.04565, -11.73501]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_6b0bda1ddaa74cd6d33a43689a79894f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_73abdcff0baff10024e528af949cf4d3 = $(`<div id="html_73abdcff0baff10024e528af949cf4d3" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 11.5 hours<br>             </div>`)[0];
+                popup_6b0bda1ddaa74cd6d33a43689a79894f.setContent(html_73abdcff0baff10024e528af949cf4d3);
+            
+        
+
+        poly_line_762f92efefb2c2487f05233a47d3b91e.bindPopup(popup_6b0bda1ddaa74cd6d33a43689a79894f)
+        ;
+
+        
+    
+    
+            poly_line_762f92efefb2c2487f05233a47d3b91e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_9b385dc3d0ace20529eb91551cff9b78 = L.polyline(
+                [[29.37326, -14.23293], [29.10256, -14.47911], [28.81337, -14.72687], [28.67821, -14.8587], [28.55012, -14.99352], [28.41624, -15.11566], [28.27393, -15.23629], [28.14349, -15.36362], [28.13867, -15.41365], [28.15939, -15.37055], [28.2412, -15.50821], [28.29463, -15.67792], [28.4041, -16.0149], [28.45685, -16.19138], [28.47591, -16.24335], [28.47824, -16.22034], [28.55717, -16.06317], [28.67795, -15.92752], [28.80524, -15.79926], [28.93, -15.67996], [29.03003, -15.58021], [29.33401, -15.2861], [29.46635, -15.14988]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_ac4342408e33174abaa1756679f4e6c3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6cd75633e9db713cd853cef3eea8ac0b = $(`<div id="html_6cd75633e9db713cd853cef3eea8ac0b" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 20.5 hours<br>             </div>`)[0];
+                popup_ac4342408e33174abaa1756679f4e6c3.setContent(html_6cd75633e9db713cd853cef3eea8ac0b);
+            
+        
+
+        poly_line_9b385dc3d0ace20529eb91551cff9b78.bindPopup(popup_ac4342408e33174abaa1756679f4e6c3)
+        ;
+
+        
+    
+    
+            poly_line_9b385dc3d0ace20529eb91551cff9b78.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_ffc6a0a8fb4b210bfb3a3cdf26de1917 = L.polyline(
+                [[34.88702, -9.301133], [35.26105, -8.87352]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_d0384bdfc75bb2a02fddfa4b4904f55a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d79cbaf64c4376982668b55345a03297 = $(`<div id="html_d79cbaf64c4376982668b55345a03297" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 2.0 hours<br>             </div>`)[0];
+                popup_d0384bdfc75bb2a02fddfa4b4904f55a.setContent(html_d79cbaf64c4376982668b55345a03297);
+            
+        
+
+        poly_line_ffc6a0a8fb4b210bfb3a3cdf26de1917.bindPopup(popup_d0384bdfc75bb2a02fddfa4b4904f55a)
+        ;
+
+        
+    
+    
+            poly_line_ffc6a0a8fb4b210bfb3a3cdf26de1917.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1689d86f848155e30bcc146018a6fac8 = L.polyline(
+                [[30.72122, -13.78449], [30.99231, -13.51239], [31.21023, -13.28277], [31.44315, -13.04366]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_82786f2b58b5df43d5feeea5a5f193c5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2a1a3843abb85f44406f14e33f370b74 = $(`<div id="html_2a1a3843abb85f44406f14e33f370b74" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 3.0 hours<br>             </div>`)[0];
+                popup_82786f2b58b5df43d5feeea5a5f193c5.setContent(html_2a1a3843abb85f44406f14e33f370b74);
+            
+        
+
+        poly_line_1689d86f848155e30bcc146018a6fac8.bindPopup(popup_82786f2b58b5df43d5feeea5a5f193c5)
+        ;
+
+        
+    
+    
+            poly_line_1689d86f848155e30bcc146018a6fac8.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_29ea48e6a3c5df72840e0d6d31cdd73e = L.polyline(
+                [[36.198, -8.1379], [36.31107, -7.975232], [36.40788, -7.832366], [36.53934, -7.617098], [36.63971, -7.442033], [36.73997, -7.27298], [36.85997, -7.121955], [36.96027, -6.943462], [37.08496, -6.828102], [37.14904, -6.877532], [37.10156, -6.825995], [36.97143, -6.940748], [36.84501, -7.085279], [36.71724, -7.230618], [36.47025, -7.516521], [36.34859, -7.668897], [36.23194, -7.824875], [36.12684, -7.953318], [35.89397, -8.222074], [35.74321, -8.39223], [35.60155, -8.509044], [35.5128, -8.59545], [35.3331, -8.76265], [35.19331, -8.884532], [34.9681, -9.050226]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_eeea95a2ab40b0731fc5d94f4a59f8fc = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_434361c34ceef987bb9a71093c443984 = $(`<div id="html_434361c34ceef987bb9a71093c443984" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 21.0 hours<br>             </div>`)[0];
+                popup_eeea95a2ab40b0731fc5d94f4a59f8fc.setContent(html_434361c34ceef987bb9a71093c443984);
+            
+        
+
+        poly_line_29ea48e6a3c5df72840e0d6d31cdd73e.bindPopup(popup_eeea95a2ab40b0731fc5d94f4a59f8fc)
+        ;
+
+        
+    
+    
+            poly_line_29ea48e6a3c5df72840e0d6d31cdd73e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_15005b2bb2b32fcae10b90985df40dcb = L.polyline(
+                [[30.49509, -14.3043], [29.93844, -14.79321], [29.40257, -15.22744], [29.22842, -15.37361], [29.09279, -15.50009], [28.95342, -15.64251], [28.82929, -15.77464], [28.70377, -15.89883], [28.57428, -16.03373], [28.47353, -16.18457], [28.47303, -16.2454], [28.48092, -16.23249], [28.42121, -16.05423], [28.36373, -15.87286], [28.30972, -15.70754], [28.24571, -15.52395], [28.16545, -15.37317], [28.13811, -15.41222], [28.12316, -15.40922], [28.21708, -15.41619], [28.28691, -15.60071], [28.33771, -15.79125], [28.39378, -15.96976], [28.45132, -16.1606], [28.47592, -16.19295], [28.56849, -16.04568], [28.68844, -15.92467], [28.82199, -15.78375], [28.94707, -15.64723], [29.18347, -15.39621], [29.4248, -15.14992], [29.48089, -15.09635]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_d1f8b7383dfb8fc11730caf578f741ce = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5bacc165d44de660b529b69d2869522a = $(`<div id="html_5bacc165d44de660b529b69d2869522a" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 28.0 hours<br>             </div>`)[0];
+                popup_d1f8b7383dfb8fc11730caf578f741ce.setContent(html_5bacc165d44de660b529b69d2869522a);
+            
+        
+
+        poly_line_15005b2bb2b32fcae10b90985df40dcb.bindPopup(popup_d1f8b7383dfb8fc11730caf578f741ce)
+        ;
+
+        
+    
+    
+            poly_line_15005b2bb2b32fcae10b90985df40dcb.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_6c57d85db50954ceaa5ec68ea0b83199 = L.polyline(
+                [[35.92679, -8.154458], [36.06102, -7.989737], [36.2681, -7.746135], [36.4393, -7.55686], [36.56592, -7.41533], [36.68524, -7.27979], [36.93693, -6.98607], [37.0558, -6.859364], [37.14217, -6.865998], [37.14991, -6.87814], [37.13878, -6.858967], [37.0354, -6.88525], [36.89717, -7.03839], [36.76476, -7.190427], [36.18556, -7.847765]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_162582032175b5cda0e7cf8c31712a5a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b47ad9017ed2ccc478533de0c450f7b3 = $(`<div id="html_b47ad9017ed2ccc478533de0c450f7b3" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 15.5 hours<br>             </div>`)[0];
+                popup_162582032175b5cda0e7cf8c31712a5a.setContent(html_b47ad9017ed2ccc478533de0c450f7b3);
+            
+        
+
+        poly_line_6c57d85db50954ceaa5ec68ea0b83199.bindPopup(popup_162582032175b5cda0e7cf8c31712a5a)
+        ;
+
+        
+    
+    
+            poly_line_6c57d85db50954ceaa5ec68ea0b83199.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_7f9c0c46c703c265736b79be0bd4d107 = L.polyline(
+                [[29.81034, -14.74321], [29.38761, -15.18659], [29.27443, -15.30689], [29.12825, -15.46072], [29.00503, -15.5902], [28.75755, -15.85709], [28.62203, -15.98639], [28.50586, -16.1198], [28.47399, -16.24422], [28.47277, -16.24496], [28.44238, -16.13492], [28.36519, -15.97303], [28.29226, -15.83021], [28.24797, -15.6426], [28.2162, -15.47771], [28.12809, -15.38072], [28.17786, -15.36983], [28.24983, -15.51721], [28.30362, -15.68305], [28.34985, -15.83452], [28.40115, -16.00801], [28.43455, -16.12356], [28.47596, -16.24324], [28.51472, -16.1158], [28.62432, -15.9872], [28.74538, -15.85796], [28.84901, -15.74967], [28.9906, -15.60359], [29.1036, -15.49055], [29.23073, -15.36082], [29.37851, -15.20618], [29.61479, -14.95055]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_422465f1b875a2b16e6fbad64241abf8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6a530d3a2c998629d11c8ccb1818dfb8 = $(`<div id="html_6a530d3a2c998629d11c8ccb1818dfb8" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 55.0 hours<br>             </div>`)[0];
+                popup_422465f1b875a2b16e6fbad64241abf8.setContent(html_6a530d3a2c998629d11c8ccb1818dfb8);
+            
+        
+
+        poly_line_7f9c0c46c703c265736b79be0bd4d107.bindPopup(popup_422465f1b875a2b16e6fbad64241abf8)
+        ;
+
+        
+    
+    
+            poly_line_7f9c0c46c703c265736b79be0bd4d107.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_14a7e1b7b0b9e9c8c8bb3b991fefe284 = L.polyline(
+                [[30.374, -14.1317], [30.93824, -13.56653], [31.09769, -13.3884], [31.21328, -13.26783]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_377754d1b07b45d3f4da14a474cdf0a2 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ccde6badacdef4d19f375857d1f77a74 = $(`<div id="html_ccde6badacdef4d19f375857d1f77a74" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 2.5 hours<br>             </div>`)[0];
+                popup_377754d1b07b45d3f4da14a474cdf0a2.setContent(html_ccde6badacdef4d19f375857d1f77a74);
+            
+        
+
+        poly_line_14a7e1b7b0b9e9c8c8bb3b991fefe284.bindPopup(popup_377754d1b07b45d3f4da14a474cdf0a2)
+        ;
+
+        
+    
+    
+            poly_line_14a7e1b7b0b9e9c8c8bb3b991fefe284.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_c4c07ff4f4c5a975252a4a9c96ec3311 = L.polyline(
+                [[36.46777, -7.55277], [36.58144, -7.405292], [36.70118, -7.257942], [36.82187, -7.12038], [36.94545, -6.99212], [37.05679, -6.852052], [37.1424, -6.867885], [37.1499, -6.878137], [37.15177, -6.883958], [37.07885, -6.835977], [36.94437, -6.967407], [36.80767, -7.100163], [36.53899, -7.37413], [36.25951, -7.646828], [35.8749, -8.0314], [35.60517, -8.30719]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_e2c4afcd52732565d95f9b2e19948f75 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d2cc7576354259b2d10c7acce11aebe1 = $(`<div id="html_d2cc7576354259b2d10c7acce11aebe1" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> SICILIA<br>             <b>Gross Tonnage:</b> 24,409 GT<br>             <b>Duration:</b> 48.0 hours<br>             </div>`)[0];
+                popup_e2c4afcd52732565d95f9b2e19948f75.setContent(html_d2cc7576354259b2d10c7acce11aebe1);
+            
+        
+
+        poly_line_c4c07ff4f4c5a975252a4a9c96ec3311.bindPopup(popup_e2c4afcd52732565d95f9b2e19948f75)
+        ;
+
+        
+    
+    
+            poly_line_c4c07ff4f4c5a975252a4a9c96ec3311.bindTooltip(
+                `<div>
+                     Passenger/Cruise: SICILIA, 24,409 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_642e43071f563e0bee5828085fe2de3c = L.polyline(
+                [[36.94215, -6.969888], [36.8005, -7.114952], [36.40676, -7.525698], [36.18083, -7.776788], [36.02722, -7.941298]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_fb4322e0fb11d4a53baa65bfd7a4ecc8 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c0bd7dc6bbe544d77615978ff57ebe93 = $(`<div id="html_c0bd7dc6bbe544d77615978ff57ebe93" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 3.5 hours<br>             </div>`)[0];
+                popup_fb4322e0fb11d4a53baa65bfd7a4ecc8.setContent(html_c0bd7dc6bbe544d77615978ff57ebe93);
+            
+        
+
+        poly_line_642e43071f563e0bee5828085fe2de3c.bindPopup(popup_fb4322e0fb11d4a53baa65bfd7a4ecc8)
+        ;
+
+        
+    
+    
+            poly_line_642e43071f563e0bee5828085fe2de3c.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_40d9e98b73cca1e9851848dba0f7edda = L.polyline(
+                [[36.55486, -7.393108], [36.71691, -7.211877], [36.83853, -7.082388], [36.96047, -6.948475], [37.07793, -6.82883], [37.14925, -6.878752], [37.11601, -6.831927], [36.99763, -6.901023], [36.87112, -7.013482], [36.50574, -7.316427]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_3c1d3ca2e7f1c204c4308b00fb15d7c7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5b46e0d37ee324a88d39122ac95c1492 = $(`<div id="html_5b46e0d37ee324a88d39122ac95c1492" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 39.0 hours<br>             </div>`)[0];
+                popup_3c1d3ca2e7f1c204c4308b00fb15d7c7.setContent(html_5b46e0d37ee324a88d39122ac95c1492);
+            
+        
+
+        poly_line_40d9e98b73cca1e9851848dba0f7edda.bindPopup(popup_3c1d3ca2e7f1c204c4308b00fb15d7c7)
+        ;
+
+        
+    
+    
+            poly_line_40d9e98b73cca1e9851848dba0f7edda.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_46e14848c6d42d47b6bccb8a79239b0c = L.polyline(
+                [[34.5646, -8.82804], [34.5646, -8.82804], [34.5646, -8.82804], [34.5646, -8.82804], [34.5646, -8.82804]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_07d21b940075e2bb4e48c4f32ef4e94f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1fb1a5497c76d768970399dbad61c8b5 = $(`<div id="html_1fb1a5497c76d768970399dbad61c8b5" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 4.5 hours<br>             </div>`)[0];
+                popup_07d21b940075e2bb4e48c4f32ef4e94f.setContent(html_1fb1a5497c76d768970399dbad61c8b5);
+            
+        
+
+        poly_line_46e14848c6d42d47b6bccb8a79239b0c.bindPopup(popup_07d21b940075e2bb4e48c4f32ef4e94f)
+        ;
+
+        
+    
+    
+            poly_line_46e14848c6d42d47b6bccb8a79239b0c.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_ecccbec2249f4bee75995c0b6586686e = L.polyline(
+                [[28.78762, -14.70958], [28.68658, -14.80606], [28.5712, -14.92338], [28.25667, -15.25322], [28.14563, -15.35924], [28.13941, -15.41116], [28.1379, -15.41175], [28.18423, -15.37381], [28.25551, -15.52322], [28.3135, -15.67927], [28.37088, -15.84003], [28.422, -16.00599], [28.46838, -16.17962], [28.47499, -16.24346], [28.47988, -16.23673], [28.48924, -16.05146], [28.61751, -15.91018], [28.73864, -15.79706], [28.86087, -15.6786], [29.44245, -15.07961]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_ce77abb30dc45f9806ac6419d1ef6af2 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b8fa0f635497aa7bf39159c5dd06ff39 = $(`<div id="html_b8fa0f635497aa7bf39159c5dd06ff39" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 19.5 hours<br>             </div>`)[0];
+                popup_ce77abb30dc45f9806ac6419d1ef6af2.setContent(html_b8fa0f635497aa7bf39159c5dd06ff39);
+            
+        
+
+        poly_line_ecccbec2249f4bee75995c0b6586686e.bindPopup(popup_ce77abb30dc45f9806ac6419d1ef6af2)
+        ;
+
+        
+    
+    
+            poly_line_ecccbec2249f4bee75995c0b6586686e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_8d7ee273e0883dc7892f9d565686c4b1 = L.polyline(
+                [[30.2191, -14.2594], [30.2191, -14.2594], [30.2191, -14.2594], [30.2191, -14.2594], [30.2191, -14.2594], [30.2191, -14.2594], [30.2191, -14.2594]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_ddf177e38e478285f43f2ce388e0dab3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9cbe66ffc2d7c5845969fd7ccac5c30b = $(`<div id="html_9cbe66ffc2d7c5845969fd7ccac5c30b" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 5.0 hours<br>             </div>`)[0];
+                popup_ddf177e38e478285f43f2ce388e0dab3.setContent(html_9cbe66ffc2d7c5845969fd7ccac5c30b);
+            
+        
+
+        poly_line_8d7ee273e0883dc7892f9d565686c4b1.bindPopup(popup_ddf177e38e478285f43f2ce388e0dab3)
+        ;
+
+        
+    
+    
+            poly_line_8d7ee273e0883dc7892f9d565686c4b1.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_a39923cf7f2b448caf68537e40872da2 = L.polyline(
+                [[33.11561, -11.1989], [33.46663, -10.8104], [33.55836, -10.70593], [33.71927, -10.52974]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_44cdfd0ac19653502cc6a0779ad28cee = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cebbdb3454525575ed05fa8f81dbfede = $(`<div id="html_cebbdb3454525575ed05fa8f81dbfede" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 2.5 hours<br>             </div>`)[0];
+                popup_44cdfd0ac19653502cc6a0779ad28cee.setContent(html_cebbdb3454525575ed05fa8f81dbfede);
+            
+        
+
+        poly_line_a39923cf7f2b448caf68537e40872da2.bindPopup(popup_44cdfd0ac19653502cc6a0779ad28cee)
+        ;
+
+        
+    
+    
+            poly_line_a39923cf7f2b448caf68537e40872da2.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_6bab4d077c0b736a17196d9903746721 = L.polyline(
+                [[35.90304, -7.890268], [36.28583, -7.415165], [36.39194, -7.286135], [36.63178, -6.983168], [36.796, -6.969823], [36.95606, -6.960698], [37.07686, -6.830642], [37.14034, -6.862058], [37.14983, -6.878412], [37.09112, -6.823508], [36.9577, -6.948115], [36.82158, -7.0832], [36.53771, -7.35578], [36.31031, -7.58556]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_252e3cdc5f692b9d13ffe537acf7166e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_11d37e2a3f0be940ac57722d4ea17ff7 = $(`<div id="html_11d37e2a3f0be940ac57722d4ea17ff7" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 48.0 hours<br>             </div>`)[0];
+                popup_252e3cdc5f692b9d13ffe537acf7166e.setContent(html_11d37e2a3f0be940ac57722d4ea17ff7);
+            
+        
+
+        poly_line_6bab4d077c0b736a17196d9903746721.bindPopup(popup_252e3cdc5f692b9d13ffe537acf7166e)
+        ;
+
+        
+    
+    
+            poly_line_6bab4d077c0b736a17196d9903746721.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_083ef2b92c70f9cbaeffdf50d1a5c29d = L.polyline(
+                [[35.8084, -8.16522], [34.04609, -9.869308]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_4346fe0025ba7ed9f51d6faad9952743 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ce6ab8e1ae57ead57d975c992aad91c7 = $(`<div id="html_ce6ab8e1ae57ead57d975c992aad91c7" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 5.0 hours<br>             </div>`)[0];
+                popup_4346fe0025ba7ed9f51d6faad9952743.setContent(html_ce6ab8e1ae57ead57d975c992aad91c7);
+            
+        
+
+        poly_line_083ef2b92c70f9cbaeffdf50d1a5c29d.bindPopup(popup_4346fe0025ba7ed9f51d6faad9952743)
+        ;
+
+        
+    
+    
+            poly_line_083ef2b92c70f9cbaeffdf50d1a5c29d.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_ffa61115b97d2385fc9776aa219c6c75 = L.polyline(
+                [[35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612], [35.8562, -8.00612]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_6e36d608707fc66032727f629744a522 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_892f3dac260ae63654448946f58b137b = $(`<div id="html_892f3dac260ae63654448946f58b137b" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 5.0 hours<br>             </div>`)[0];
+                popup_6e36d608707fc66032727f629744a522.setContent(html_892f3dac260ae63654448946f58b137b);
+            
+        
+
+        poly_line_ffa61115b97d2385fc9776aa219c6c75.bindPopup(popup_6e36d608707fc66032727f629744a522)
+        ;
+
+        
+    
+    
+            poly_line_ffa61115b97d2385fc9776aa219c6c75.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_cfe5c4c62410c1d34490c507be7cabe0 = L.polyline(
+                [[30.11534, -13.54705], [29.06124, -14.53064], [28.79862, -14.77164], [28.64765, -14.91502], [28.29025, -15.24508], [28.16758, -15.35217], [28.13794, -15.41179], [28.17649, -15.36974], [28.24746, -15.51614], [28.35993, -15.84493], [28.46147, -16.17329], [28.47478, -16.24315], [28.50832, -16.11674], [28.75343, -15.86536], [28.89124, -15.72664], [29.23748, -15.3609]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_113116695ff347a91e68ce4b4008fae0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_90b23edfab132299d58c78abdc7fe459 = $(`<div id="html_90b23edfab132299d58c78abdc7fe459" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 23.0 hours<br>             </div>`)[0];
+                popup_113116695ff347a91e68ce4b4008fae0.setContent(html_90b23edfab132299d58c78abdc7fe459);
+            
+        
+
+        poly_line_cfe5c4c62410c1d34490c507be7cabe0.bindPopup(popup_113116695ff347a91e68ce4b4008fae0)
+        ;
+
+        
+    
+    
+            poly_line_cfe5c4c62410c1d34490c507be7cabe0.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_eedae50270ffa099b8609908b47d026a = L.polyline(
+                [[30.13763, -14.40554], [30.54376, -13.96487]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_6ff0f8902ef68918044cbe36ad82e109 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3e579397e611472ef654a69f8889e617 = $(`<div id="html_3e579397e611472ef654a69f8889e617" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 2.0 hours<br>             </div>`)[0];
+                popup_6ff0f8902ef68918044cbe36ad82e109.setContent(html_3e579397e611472ef654a69f8889e617);
+            
+        
+
+        poly_line_eedae50270ffa099b8609908b47d026a.bindPopup(popup_6ff0f8902ef68918044cbe36ad82e109)
+        ;
+
+        
+    
+    
+            poly_line_eedae50270ffa099b8609908b47d026a.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_232141d2902cace00da551b27d3801d0 = L.polyline(
+                [[32.76677, -11.54002], [32.9243, -11.35905], [33.63328, -10.56163]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_dc0ab1d998da9abea57b36428e13b904 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d767d62a96ed1eb6ecc0e75cbdbc40f7 = $(`<div id="html_d767d62a96ed1eb6ecc0e75cbdbc40f7" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 3.5 hours<br>             </div>`)[0];
+                popup_dc0ab1d998da9abea57b36428e13b904.setContent(html_d767d62a96ed1eb6ecc0e75cbdbc40f7);
+            
+        
+
+        poly_line_232141d2902cace00da551b27d3801d0.bindPopup(popup_dc0ab1d998da9abea57b36428e13b904)
+        ;
+
+        
+    
+    
+            poly_line_232141d2902cace00da551b27d3801d0.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_9a2ebd249a3a45975514be3ee9096c6e = L.polyline(
+                [[36.46632, -7.413778], [36.70057, -7.18236], [36.86421, -7.096127], [36.97576, -6.95406], [37.08484, -6.829053], [37.14928, -6.878245], [37.14604, -6.876342], [37.04135, -6.868378], [36.89921, -7.036032], [36.75286, -7.200588], [36.62336, -7.3464], [36.50095, -7.487767], [36.22404, -7.819433], [35.96096, -8.116888], [35.65185, -8.458898], [35.41398, -8.72632]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_a81227e509c366e162a9bf488f462b3e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f07b79f1080294d8528d803118c5248c = $(`<div id="html_f07b79f1080294d8528d803118c5248c" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 18.0 hours<br>             </div>`)[0];
+                popup_a81227e509c366e162a9bf488f462b3e.setContent(html_f07b79f1080294d8528d803118c5248c);
+            
+        
+
+        poly_line_9a2ebd249a3a45975514be3ee9096c6e.bindPopup(popup_a81227e509c366e162a9bf488f462b3e)
+        ;
+
+        
+    
+    
+            poly_line_9a2ebd249a3a45975514be3ee9096c6e.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_ee6c93c87bb0af65dab69b50ee918cd5 = L.polyline(
+                [[34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017], [34.2186, -10.1017]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_12849cdff145fb6d3595fa39176165d6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_91ea242071cb78d9969a2cc95bd87442 = $(`<div id="html_91ea242071cb78d9969a2cc95bd87442" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 4.0 hours<br>             </div>`)[0];
+                popup_12849cdff145fb6d3595fa39176165d6.setContent(html_91ea242071cb78d9969a2cc95bd87442);
+            
+        
+
+        poly_line_ee6c93c87bb0af65dab69b50ee918cd5.bindPopup(popup_12849cdff145fb6d3595fa39176165d6)
+        ;
+
+        
+    
+    
+            poly_line_ee6c93c87bb0af65dab69b50ee918cd5.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1aa54ca20c968a775a3aad8051c23a65 = L.polyline(
+                [[29.00278, -15.58764], [28.88409, -15.71125], [28.74156, -15.85872], [28.59649, -16.01279], [28.48364, -16.18686], [28.47292, -16.2452], [28.41643, -16.13331], [28.35283, -15.93264], [28.24316, -15.51965], [28.15978, -15.3682], [28.13689, -15.41091], [28.13007, -15.40908], [28.20867, -15.38762], [28.27351, -15.57865], [28.32946, -15.72708], [28.38233, -15.87776], [28.43022, -16.02691], [28.47178, -16.17503], [28.49646, -16.11469], [28.60908, -15.99197], [28.8732, -15.72101], [28.98378, -15.60861], [29.05782, -15.53267]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_0c83d5ad32bb2f1fbd75bd75a9240c42 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e6120dfba80e3f71b06038ab6ddf1948 = $(`<div id="html_e6120dfba80e3f71b06038ab6ddf1948" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 24.5 hours<br>             </div>`)[0];
+                popup_0c83d5ad32bb2f1fbd75bd75a9240c42.setContent(html_e6120dfba80e3f71b06038ab6ddf1948);
+            
+        
+
+        poly_line_1aa54ca20c968a775a3aad8051c23a65.bindPopup(popup_0c83d5ad32bb2f1fbd75bd75a9240c42)
+        ;
+
+        
+    
+    
+            poly_line_1aa54ca20c968a775a3aad8051c23a65.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_2b69b3e73a613fd48897b4a3af2939e6 = L.polyline(
+                [[30.13942, -14.4064], [30.49207, -14.03575]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_8f60754a8c370d888a6e12ca3d992c22 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e669691b18e44dfa8613aa7dac747b29 = $(`<div id="html_e669691b18e44dfa8613aa7dac747b29" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 1.5 hours<br>             </div>`)[0];
+                popup_8f60754a8c370d888a6e12ca3d992c22.setContent(html_e669691b18e44dfa8613aa7dac747b29);
+            
+        
+
+        poly_line_2b69b3e73a613fd48897b4a3af2939e6.bindPopup(popup_8f60754a8c370d888a6e12ca3d992c22)
+        ;
+
+        
+    
+    
+            poly_line_2b69b3e73a613fd48897b4a3af2939e6.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_caae7faab001c8a951b6e1e34b4be1aa = L.polyline(
+                [[30.6845, -13.8331], [30.6845, -13.8331], [30.6845, -13.8331], [30.6845, -13.8331], [30.6845, -13.8331], [30.6845, -13.8331]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_5e84a063912f871bbf81a5b3382d3546 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8e50bcc584f322b655eab4f93ba34c7e = $(`<div id="html_8e50bcc584f322b655eab4f93ba34c7e" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 4.0 hours<br>             </div>`)[0];
+                popup_5e84a063912f871bbf81a5b3382d3546.setContent(html_8e50bcc584f322b655eab4f93ba34c7e);
+            
+        
+
+        poly_line_caae7faab001c8a951b6e1e34b4be1aa.bindPopup(popup_5e84a063912f871bbf81a5b3382d3546)
+        ;
+
+        
+    
+    
+            poly_line_caae7faab001c8a951b6e1e34b4be1aa.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1e54a0c795b44acedadc73f2beeadf10 = L.polyline(
+                [[36.52448, -7.449903], [36.64746, -7.319918], [36.76666, -7.189583], [36.87846, -7.058918], [36.98488, -6.939165], [37.09454, -6.825314], [37.12731, -6.837787], [36.99945, -6.920737], [36.86086, -7.055287], [36.56416, -7.366405], [36.47601, -7.433668], [36.32845, -7.568542]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_4ffe830b36cdb07731d04284823b9d3d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_db1a0b5df352dbe0bd043c6193b3ad60 = $(`<div id="html_db1a0b5df352dbe0bd043c6193b3ad60" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 14.5 hours<br>             </div>`)[0];
+                popup_4ffe830b36cdb07731d04284823b9d3d.setContent(html_db1a0b5df352dbe0bd043c6193b3ad60);
+            
+        
+
+        poly_line_1e54a0c795b44acedadc73f2beeadf10.bindPopup(popup_4ffe830b36cdb07731d04284823b9d3d)
+        ;
+
+        
+    
+    
+            poly_line_1e54a0c795b44acedadc73f2beeadf10.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_8e7f2c6cb89437bed96c54304b547764 = L.polyline(
+                [[33.5062, -10.716], [33.5062, -10.716], [33.5062, -10.716], [33.5062, -10.716], [33.5062, -10.716]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_e9556bf769c1acb3e2d66d8cc028b710 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8966b9b5e3c08f5cba519119c903cef6 = $(`<div id="html_8966b9b5e3c08f5cba519119c903cef6" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 4.0 hours<br>             </div>`)[0];
+                popup_e9556bf769c1acb3e2d66d8cc028b710.setContent(html_8966b9b5e3c08f5cba519119c903cef6);
+            
+        
+
+        poly_line_8e7f2c6cb89437bed96c54304b547764.bindPopup(popup_e9556bf769c1acb3e2d66d8cc028b710)
+        ;
+
+        
+    
+    
+            poly_line_8e7f2c6cb89437bed96c54304b547764.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_5a17e82a6181212667e2b27f035372e7 = L.polyline(
+                [[28.87227, -15.72097], [28.73242, -15.859], [28.59809, -15.99051], [28.49547, -16.13865], [28.47437, -16.24237], [28.44221, -16.08363], [28.38194, -15.89375], [28.25651, -15.51439], [28.15312, -15.38217], [28.13839, -15.41205], [28.14279, -15.3643], [28.23959, -15.49243], [28.30358, -15.66547], [28.35824, -15.83506], [28.41569, -16.01843], [28.47235, -16.19901], [28.47612, -16.24345], [28.47757, -16.23944], [28.52327, -16.08952], [28.65197, -15.94728], [28.77303, -15.82048], [28.89883, -15.67871], [29.1212, -15.41016]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_2641b41933a2b4da5d71d36b5dd11cee = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_651e59d611ebe06c238d79d4bb1db85f = $(`<div id="html_651e59d611ebe06c238d79d4bb1db85f" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 50.5 hours<br>             </div>`)[0];
+                popup_2641b41933a2b4da5d71d36b5dd11cee.setContent(html_651e59d611ebe06c238d79d4bb1db85f);
+            
+        
+
+        poly_line_5a17e82a6181212667e2b27f035372e7.bindPopup(popup_2641b41933a2b4da5d71d36b5dd11cee)
+        ;
+
+        
+    
+    
+            poly_line_5a17e82a6181212667e2b27f035372e7.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_dbc035c5e5d7a62f43d02585c70d9748 = L.polyline(
+                [[30.2147, -14.0853], [31.31847, -12.75257]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_acd46d7b2afaf6b9b5acb3829a7340b3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7156e7eb9f7287c054d99a6d51deaf75 = $(`<div id="html_7156e7eb9f7287c054d99a6d51deaf75" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 4.5 hours<br>             </div>`)[0];
+                popup_acd46d7b2afaf6b9b5acb3829a7340b3.setContent(html_7156e7eb9f7287c054d99a6d51deaf75);
+            
+        
+
+        poly_line_dbc035c5e5d7a62f43d02585c70d9748.bindPopup(popup_acd46d7b2afaf6b9b5acb3829a7340b3)
+        ;
+
+        
+    
+    
+            poly_line_dbc035c5e5d7a62f43d02585c70d9748.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_0c980ba4c3372cc20474549021998cc8 = L.polyline(
+                [[36.52409, -7.245685], [36.82, -7.03388], [37.09641, -6.823793], [37.10013, -6.82326], [36.97426, -6.930787], [36.82821, -7.083086], [36.69792, -7.222847], [36.56137, -7.362586], [36.46768, -7.457493], [36.1992, -7.720597], [35.89291, -8.006594], [35.34823, -8.527295]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_91a9390fa8b7b86e3c1a9ae0a348eb19 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_41d58fff6f892dc0fb63521dc97c6584 = $(`<div id="html_41d58fff6f892dc0fb63521dc97c6584" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 49.0 hours<br>             </div>`)[0];
+                popup_91a9390fa8b7b86e3c1a9ae0a348eb19.setContent(html_41d58fff6f892dc0fb63521dc97c6584);
+            
+        
+
+        poly_line_0c980ba4c3372cc20474549021998cc8.bindPopup(popup_91a9390fa8b7b86e3c1a9ae0a348eb19)
+        ;
+
+        
+    
+    
+            poly_line_0c980ba4c3372cc20474549021998cc8.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_07f7429468a8f67ab4472c7bf77d8de2 = L.polyline(
+                [[29.64349, -13.9628], [29.28108, -14.30743]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_d3af0da876f06d3af76a75c26d83395a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_97ab9cae60ffb7719a1f4778b8d29e27 = $(`<div id="html_97ab9cae60ffb7719a1f4778b8d29e27" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 1.5 hours<br>             </div>`)[0];
+                popup_d3af0da876f06d3af76a75c26d83395a.setContent(html_97ab9cae60ffb7719a1f4778b8d29e27);
+            
+        
+
+        poly_line_07f7429468a8f67ab4472c7bf77d8de2.bindPopup(popup_d3af0da876f06d3af76a75c26d83395a)
+        ;
+
+        
+    
+    
+            poly_line_07f7429468a8f67ab4472c7bf77d8de2.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_1b23bd065fef36a0f89ec3cc4d3d1a37 = L.polyline(
+                [[29.63418, -13.72939], [29.38442, -13.98815], [28.60789, -14.80818], [28.35335, -15.07091], [28.24719, -15.1991], [28.13427, -15.3578], [28.13884, -15.41185], [28.13427, -15.409], [28.17391, -15.36906], [28.24899, -15.52129], [28.30432, -15.68208], [28.36173, -15.84258], [28.41234, -15.99738], [28.465, -16.17236], [28.4827, -16.17119], [28.60891, -15.99538], [29.09523, -15.49135], [29.75105, -14.79487], [30.06776, -14.46185], [30.5535, -13.9382]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_da865f454152d6abbe7d577cb5555af1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d1036c7881b57c2baf70eb2fef533f6b = $(`<div id="html_d1036c7881b57c2baf70eb2fef533f6b" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 29.5 hours<br>             </div>`)[0];
+                popup_da865f454152d6abbe7d577cb5555af1.setContent(html_d1036c7881b57c2baf70eb2fef533f6b);
+            
+        
+
+        poly_line_1b23bd065fef36a0f89ec3cc4d3d1a37.bindPopup(popup_da865f454152d6abbe7d577cb5555af1)
+        ;
+
+        
+    
+    
+            poly_line_1b23bd065fef36a0f89ec3cc4d3d1a37.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_527926c4fda475caec990792600b332a = L.polyline(
+                [[30.5535, -13.9382], [32.31691, -11.97404], [32.58698, -11.6656]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_83de8ab9d087df7f2951df0f93ff1a8d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d61ebd0e8f663063b392503e7c432f41 = $(`<div id="html_d61ebd0e8f663063b392503e7c432f41" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 2.0 hours<br>             </div>`)[0];
+                popup_83de8ab9d087df7f2951df0f93ff1a8d.setContent(html_d61ebd0e8f663063b392503e7c432f41);
+            
+        
+
+        poly_line_527926c4fda475caec990792600b332a.bindPopup(popup_83de8ab9d087df7f2951df0f93ff1a8d)
+        ;
+
+        
+    
+    
+            poly_line_527926c4fda475caec990792600b332a.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_7e511cd96c5785e7a4aeea8c36692cde = L.polyline(
+                [[33.97487, -9.544192], [34.04856, -9.38182], [34.41861, -8.548273]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_6b44d90cbee95f6b9fbedc0c8170fa43 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_65a32b605fc529c11deebeb9a8bf6036 = $(`<div id="html_65a32b605fc529c11deebeb9a8bf6036" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 2.5 hours<br>             </div>`)[0];
+                popup_6b44d90cbee95f6b9fbedc0c8170fa43.setContent(html_65a32b605fc529c11deebeb9a8bf6036);
+            
+        
+
+        poly_line_7e511cd96c5785e7a4aeea8c36692cde.bindPopup(popup_6b44d90cbee95f6b9fbedc0c8170fa43)
+        ;
+
+        
+    
+    
+            poly_line_7e511cd96c5785e7a4aeea8c36692cde.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_0432c90093d8467f1b01068327c9bd3b = L.polyline(
+                [[36.35318, -7.23974], [36.49445, -7.266217], [36.67421, -7.254813], [36.80858, -7.122553], [36.93309, -6.98493], [37.05765, -6.84542], [37.14292, -6.867965], [37.14982, -6.87836], [37.096634, -6.8225069], [36.939011, -6.9303732], [36.787224, -7.0750451], [36.624783, -7.1760416], [36.492519, -7.2531672], [36.353214, -7.3486128]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_dc14331eda95e4726a43118bd9cf1077 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_20e3583164c515a76f08ee945bbb40e1 = $(`<div id="html_20e3583164c515a76f08ee945bbb40e1" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 14.5 hours<br>             </div>`)[0];
+                popup_dc14331eda95e4726a43118bd9cf1077.setContent(html_20e3583164c515a76f08ee945bbb40e1);
+            
+        
+
+        poly_line_0432c90093d8467f1b01068327c9bd3b.bindPopup(popup_dc14331eda95e4726a43118bd9cf1077)
+        ;
+
+        
+    
+    
+            poly_line_0432c90093d8467f1b01068327c9bd3b.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_5312237332385d64f87e0d17a3014efa = L.polyline(
+                [[29.933058, -13.86715], [29.768089, -14.103312], [29.522713, -14.475942], [29.168364, -15.018104], [29.06411, -15.179847], [28.943216, -15.373455], [28.84235, -15.549883], [28.641407, -15.92203], [28.521177, -16.081963], [28.47677, -16.240133], [28.47418, -16.24318], [28.48771, -16.22045], [28.48735, -16.22173], [28.43942, -16.12938], [28.30968, -15.76413], [28.20034, -15.39582], [28.1294, -15.40995], [28.13881, -15.41401]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_d6e2388630285aef40bd5a2b366caae6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_cdfca5ee0220ce09bc5ec02518e643f0 = $(`<div id="html_cdfca5ee0220ce09bc5ec02518e643f0" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 121.0 hours<br>             </div>`)[0];
+                popup_d6e2388630285aef40bd5a2b366caae6.setContent(html_cdfca5ee0220ce09bc5ec02518e643f0);
+            
+        
+
+        poly_line_5312237332385d64f87e0d17a3014efa.bindPopup(popup_d6e2388630285aef40bd5a2b366caae6)
+        ;
+
+        
+    
+    
+            poly_line_5312237332385d64f87e0d17a3014efa.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_60e48a0e4388c14019ae152774a2daf4 = L.polyline(
+                [[28.65096, -14.9037], [28.27496, -15.25177], [28.14866, -15.36257], [28.13927, -15.41096], [28.12236, -15.3798], [28.23615, -15.48376], [28.31095, -15.6838], [28.37912, -15.88001], [28.44284, -16.07893], [28.47572, -16.24078], [28.47731, -16.23986], [28.52368, -16.08881], [28.76156, -15.83347], [29.00896, -15.5871], [29.35707, -15.22552], [29.95729, -14.58202], [30.19466, -14.3356], [30.52198, -13.99959], [30.73431, -13.76694], [30.90363, -13.58541]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_42371aad851e6500f42a363a33f13e30 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9afb2b42fb149899046ae17e11c86394 = $(`<div id="html_9afb2b42fb149899046ae17e11c86394" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 25.0 hours<br>             </div>`)[0];
+                popup_42371aad851e6500f42a363a33f13e30.setContent(html_9afb2b42fb149899046ae17e11c86394);
+            
+        
+
+        poly_line_60e48a0e4388c14019ae152774a2daf4.bindPopup(popup_42371aad851e6500f42a363a33f13e30)
+        ;
+
+        
+    
+    
+            poly_line_60e48a0e4388c14019ae152774a2daf4.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_9deaa21c7a27744add25039b3b6466fd = L.polyline(
+                [[36.56073, -7.42082], [36.79493, -7.15757], [36.90908, -7.023807], [37.02087, -6.896488], [37.08629, -6.827263], [37.14983, -6.878432], [37.10868, -6.827993], [36.9758, -6.937191], [36.84397, -7.086278], [36.3266, -7.680333], [35.94332, -8.116307]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_efe5e29990e3f1d0fc2d4a8ab6e2640b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1946dec4b673e24f4f3fd8038aa71737 = $(`<div id="html_1946dec4b673e24f4f3fd8038aa71737" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 15.0 hours<br>             </div>`)[0];
+                popup_efe5e29990e3f1d0fc2d4a8ab6e2640b.setContent(html_1946dec4b673e24f4f3fd8038aa71737);
+            
+        
+
+        poly_line_9deaa21c7a27744add25039b3b6466fd.bindPopup(popup_efe5e29990e3f1d0fc2d4a8ab6e2640b)
+        ;
+
+        
+    
+    
+            poly_line_9deaa21c7a27744add25039b3b6466fd.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var poly_line_cde8c0377f784ea1fe4b44cbf7ecb50d = L.polyline(
+                [[30.50034, -14.00212], [30.03798, -14.48102], [29.71731, -14.80617], [29.55844, -14.97083], [28.81775, -15.7622], [28.68007, -15.9154], [28.56033, -16.0486], [28.47698, -16.18663], [28.47434, -16.24335], [28.43538, -16.13987], [28.38345, -15.98607], [28.33398, -15.82975], [28.28914, -15.66531], [28.24287, -15.50888], [28.17564, -15.36993], [28.13616, -15.41076], [28.13394, -15.40944], [28.17735, -15.35337], [28.24351, -15.5021], [28.30188, -15.66503], [28.46351, -16.16808], [28.47487, -16.24229], [28.50834, -16.09472], [28.63018, -15.95784], [28.75601, -15.83332], [28.89331, -15.69591], [29.09386, -15.4915]],
+                {"bubblingMouseEvents": true, "color": "#CC00CC", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#CC00CC", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 10.0}
+            ).addTo(feature_group_278a4a7bc85ea1e39d196c1b2169180e);
+        
+    
+        var popup_6d35e0f40118fe9c2a064ef8af47a378 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f28456eea92d553730cab5f22860f163 = $(`<div id="html_f28456eea92d553730cab5f22860f163" style="width: 100.0%; height: 100.0%;">             <h4>Passenger/Cruise Individual Route</h4>             <b>Vessel:</b> MARIE CURIE<br>             <b>Gross Tonnage:</b> 28,658 GT<br>             <b>Duration:</b> 31.0 hours<br>             </div>`)[0];
+                popup_6d35e0f40118fe9c2a064ef8af47a378.setContent(html_f28456eea92d553730cab5f22860f163);
+            
+        
+
+        poly_line_cde8c0377f784ea1fe4b44cbf7ecb50d.bindPopup(popup_6d35e0f40118fe9c2a064ef8af47a378)
+        ;
+
+        
+    
+    
+            poly_line_cde8c0377f784ea1fe4b44cbf7ecb50d.bindTooltip(
+                `<div>
+                     Passenger/Cruise: MARIE CURIE, 28,658 GT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_278a4a7bc85ea1e39d196c1b2169180e.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_4f2459177ce195a6429d6cfe5b54c233 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_4f2459177ce195a6429d6cfe5b54c233.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_ae37e3dad702710fd3e304f25aef8bbb = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_ae37e3dad702710fd3e304f25aef8bbb.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_1f76a90852255e8871f4260e56e92a9e = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_1f76a90852255e8871f4260e56e92a9e.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_673f38cfe379f4c52e9843508f29690d = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_673f38cfe379f4c52e9843508f29690d.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var feature_group_cc09081ae85cc086cba34d4f996953ed = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_cc09081ae85cc086cba34d4f996953ed.addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+        
+    
+            var layer_control_fcce05ba673880fd06b63865a0086d87_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_5f6947a3a7796c34b28135059d74ba4e,
+                },
+                overlays :  {
+                    "Container Ship Routes" : feature_group_beeaeed08b6c3336ec55a68a7b498b0b,
+                    "Bulk Carrier Routes" : feature_group_df8db0479e8074c4f332172b760c171e,
+                    "Tanker Routes" : feature_group_4bd1c593bfe994c0b737818f9628ed30,
+                    "Passenger/Cruise Routes" : feature_group_278a4a7bc85ea1e39d196c1b2169180e,
+                    "Cargo Ship Routes" : feature_group_4f2459177ce195a6429d6cfe5b54c233,
+                    "Ro-Ro Routes" : feature_group_ae37e3dad702710fd3e304f25aef8bbb,
+                    "Other Routes" : feature_group_cc09081ae85cc086cba34d4f996953ed,
+                    "Unknown Routes" : feature_group_673f38cfe379f4c52e9843508f29690d,
+                },
+            };
+            let layer_control_fcce05ba673880fd06b63865a0086d87 = L.control.layers(
+                layer_control_fcce05ba673880fd06b63865a0086d87_layers.base_layers,
+                layer_control_fcce05ba673880fd06b63865a0086d87_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_1ace97c4cb8e431b8fce98b7bfcf2445);
+
+        
+</script>
+</html>

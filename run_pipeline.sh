@@ -95,6 +95,7 @@ fi
 # Step 3: Rendering the map
 echo ""
 echo "Step 3: Rendering maritime highway map..."
+# Always use by_vessel_type flag to ensure layers are created
 source ./env/bin/activate && python src/render.py --params "$PARAMS_JSON" --output "$OUTPUT_HTML" --by_vessel_type
 
 # Check if rendering was successful
