@@ -115,6 +115,13 @@ def create_trip_lines(df):
     trip_lines = []
     trip_data = []
     
+    # Print the column names for debugging
+    print(f"Available columns: {df.columns.tolist()}")
+    
+    # Check if fleet column exists
+    has_fleet = 'fleet' in df.columns
+    print(f"Fleet column exists: {has_fleet}")
+    
     for trip_id, trip_points in df.groupby('unique_trip_id'):
         # Sort points by timestamp
         trip_points = trip_points.sort_values('timestamp')
@@ -130,9 +137,17 @@ def create_trip_lines(df):
             imo = trip_points['imo'].iloc[0]
             vessel_name = trip_points['vessel_name'].iloc[0] if 'vessel_name' in trip_points else 'Unknown'
             
-            # Get vessel type and fleet if available
-            vessel_type = trip_points['vessel_type'].iloc[0] if 'vessel_type' in trip_points else None
-            fleet = trip_points['fleet'].iloc[0] if 'fleet' in trip_points else None
+            # Get vessel type and fleet if available - check first record
+            vessel_type = None
+            fleet = None
+            
+            if 'vessel_type' in trip_points.columns:
+                vessel_type = trip_points['vessel_type'].iloc[0]
+                print(f"Found vessel_type: {vessel_type} for trip {trip_id}")
+            
+            if 'fleet' in trip_points.columns:
+                fleet = trip_points['fleet'].iloc[0]
+                print(f"Found fleet: {fleet} for trip {trip_id}")
             
             # Get gross tonnage if available
             gross_tonnage = trip_points['GT'].iloc[0] if 'GT' in trip_points else 0
@@ -165,6 +180,11 @@ def create_trip_lines(df):
     
     gdf = gpd.GeoDataFrame(trip_data, geometry=trip_lines, crs="EPSG:4326")
     print(f"Created {len(gdf)} trip lines.")
+    
+    # Check if fleet information exists
+    if 'fleet' in gdf.columns:
+        fleet_counts = gdf['fleet'].value_counts()
+        print(f"Fleet counts in trip lines: {fleet_counts}")
     
     return gdf
 
@@ -540,7 +560,7 @@ def create_port_data(df, port_radius=0.05):
     return port_gdf
 
 def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.html', 
-                 by_vessel_type=False, routes_only=True):
+                 by_vessel_type=True, routes_only=True):  # Changed default to True
     """
     Generate a maritime highway map with routes proportional to traffic volume.
     
@@ -552,16 +572,26 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         routes_only (bool, optional): Whether to show only routes (no ports)
     """
     print(f"Generating maritime highway map to {output_file}...")
+    print(f"Using vessel type layers: {by_vessel_type}")
     
     if routes_gdf.empty:
         print("No routes to display on the map.")
         return
     
     # Check if the GeoDataFrame has required columns
-    required_columns = ['total_gross_tonnage', 'vessel_type', 'vessel_names', 'avg_duration_hours']
+    required_columns = ['total_gross_tonnage', 'vessel_names', 'avg_duration_hours']
     for col in required_columns:
         if col not in routes_gdf.columns:
             print(f"Warning: '{col}' column missing. Map may not display correctly.")
+    
+    # Check if vessel type or fleet columns exist
+    has_vessel_type = 'vessel_type' in routes_gdf.columns
+    has_fleet = 'fleet' in routes_gdf.columns
+    
+    if by_vessel_type and not (has_vessel_type or has_fleet):
+        print("Warning: Neither 'vessel_type' nor 'fleet' columns found. Cannot create layers by vessel type.")
+        print("Available columns:", routes_gdf.columns.tolist())
+        by_vessel_type = False
     
     # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(output_file) or '.', exist_ok=True)
@@ -613,6 +643,7 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         'Tanker': '#e41a1c',  # Red
         'Container': '#377eb8',  # Blue
         'Bulkcarrier': '#4daf4a',  # Green
+        'Bulk Carrier': '#4daf4a',  # Green (alternative name)
         'Cruise': '#984ea3',  # Purple
         'Ferry': '#ff7f00',  # Orange
         'CarCarrier': '#ffff33',  # Yellow
@@ -649,25 +680,39 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
     vessel_type_groups = {}
     
     if by_vessel_type:
-        # Get unique vessel types
-        if 'vessel_type' in routes_gdf.columns:
-            vessel_types = routes_gdf['vessel_type'].dropna().unique()
-        elif 'fleet' in routes_gdf.columns:
-            vessel_types = routes_gdf['fleet'].dropna().unique()
+        # Identify the primary vessel type column to use
+        vessel_type_col = None
+        if has_vessel_type and routes_gdf['vessel_type'].notna().any():
+            vessel_type_col = 'vessel_type'
+            print("Using 'vessel_type' column for layers")
+        elif has_fleet and routes_gdf['fleet'].notna().any():
+            vessel_type_col = 'fleet'
+            print("Using 'fleet' column for layers")
         else:
-            vessel_types = ['Unknown']
-            
-        # Create a feature group for each vessel type
-        for vessel_type in vessel_types:
-            if vessel_type:  # Skip None/NaN
-                fg = folium.FeatureGroup(name=f"{vessel_type} Routes")
-                vessel_type_groups[vessel_type] = fg
-                fg.add_to(m)
+            print("No usable vessel type information found")
+            vessel_type_col = None
         
-        # Add a group for uncategorized routes
-        fg_other = folium.FeatureGroup(name="Other Routes")
-        vessel_type_groups['Other'] = fg_other
-        fg_other.add_to(m)
+        if vessel_type_col:
+            # Get unique vessel types
+            vessel_types = routes_gdf[vessel_type_col].dropna().unique()
+            print(f"Found vessel types: {vessel_types}")
+            
+            # Create a feature group for each vessel type
+            for vessel_type in vessel_types:
+                if vessel_type:  # Skip None/NaN
+                    fg = folium.FeatureGroup(name=f"{vessel_type} Routes")
+                    vessel_type_groups[vessel_type] = fg
+                    fg.add_to(m)
+            
+            # Add a group for uncategorized routes
+            fg_other = folium.FeatureGroup(name="Other Routes")
+            vessel_type_groups['Other'] = fg_other
+            fg_other.add_to(m)
+        else:
+            # Fallback to single layer
+            by_vessel_type = False
+            fg_routes = folium.FeatureGroup(name='Maritime Routes')
+            fg_routes.add_to(m)
     else:
         # Single feature group for all routes
         fg_routes = folium.FeatureGroup(name='Maritime Routes')
@@ -755,17 +800,6 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
             popup=folium.Popup(popup_html, max_width=300)
         )
         
-        # Add to appropriate feature group
-        if by_vessel_type:
-            if 'vessel_type' in route and route['vessel_type'] and route['vessel_type'] in vessel_type_groups:
-                vessel_type_groups[route['vessel_type']].add_child(polyline)
-            elif 'fleet' in route and route['fleet'] and route['fleet'] in vessel_type_groups:
-                vessel_type_groups[route['fleet']].add_child(polyline)
-            else:
-                vessel_type_groups['Other'].add_child(polyline)
-        else:
-            fg_routes.add_child(polyline)
-        
         # Create polyline
         polyline = folium.PolyLine(
             line_coords,
@@ -778,12 +812,21 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         
         # Add to appropriate feature group
         if by_vessel_type:
+            # First try using vessel_type
             if 'vessel_type' in route and route['vessel_type'] and route['vessel_type'] in vessel_type_groups:
                 vessel_type_groups[route['vessel_type']].add_child(polyline)
+                if idx < 5:  # Log for debugging
+                    print(f"  Added to {route['vessel_type']} layer")
+            # Then try using fleet
             elif 'fleet' in route and route['fleet'] and route['fleet'] in vessel_type_groups:
                 vessel_type_groups[route['fleet']].add_child(polyline)
+                if idx < 5:  # Log for debugging
+                    print(f"  Added to {route['fleet']} layer")
+            # If all else fails, add to "Other"
             else:
                 vessel_type_groups['Other'].add_child(polyline)
+                if idx < 5:  # Log for debugging
+                    print("  Added to Other layer")
         else:
             fg_routes.add_child(polyline)
     
@@ -822,14 +865,21 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
         
         # Show the vessel types that are actually in the data
         used_types = []
-        if 'vessel_type' in routes_gdf.columns:
+        
+        # Identify the primary vessel type column to use
+        vessel_type_col = None
+        if 'vessel_type' in routes_gdf.columns and routes_gdf['vessel_type'].notna().any():
+            vessel_type_col = 'vessel_type'
             used_types = routes_gdf['vessel_type'].dropna().unique()
-        elif 'fleet' in routes_gdf.columns:
+        elif 'fleet' in routes_gdf.columns and routes_gdf['fleet'].notna().any():
+            vessel_type_col = 'fleet'
             used_types = routes_gdf['fleet'].dropna().unique()
+        
+        print(f"Creating legend with {len(used_types)} vessel types")
             
         for vessel_type in used_types:
             if vessel_type:  # Skip None/NaN
-                if 'vessel_type' in routes_gdf.columns:
+                if vessel_type_col == 'vessel_type':
                     color = vessel_type_colors.get(vessel_type, default_color)
                 else:  # fleet
                     color = fleet_colors.get(vessel_type, default_color)
@@ -838,9 +888,12 @@ def generate_map(routes_gdf, port_gdf=None, output_file='maritime_routes_map.htm
                     f'<div><span style="display: inline-block; width: 50px; height: 6px; background-color: {color};"></span> {vessel_type}</div>'
                 )
         
+        # Add height calculation based on number of items
+        legend_height = 100 + (len(legend_items) * 20)
+        
         legend_html = f'''
         <div style="position: fixed; 
-                    bottom: 50px; left: 50px; width: 250px; 
+                    bottom: 50px; left: 50px; width: 250px; height: {legend_height}px; 
                     border: 2px solid grey; z-index: 9999; font-size: 14px;
                     background-color: white; padding: 10px; border-radius: 5px;">
             <div style="text-align: center; margin-bottom: 5px;">

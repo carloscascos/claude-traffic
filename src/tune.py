@@ -280,7 +280,7 @@ def binary_search_tune(df):
         'min_trip_points': 10,
         'cluster_eps': 0.01,
         'cluster_min_samples': 2,
-        'by_vessel_type': False,
+        'by_vessel_type': True,  # Always enable vessel type layers
         'routes_only': True  # Default to routes only
     }
     
